@@ -17,12 +17,12 @@
   "include": [
     "artifacts/**/*",
     "artifacts/**/*.json",
+    "scripts/*",
     "scripts/**/*",
     "tasks/**/*",
     "test/**/*",
     "typechain/**/*",
     "types/**/*",
-    "previous/TemplateToken_v2.behavior.ts",
-    "./scripts"
+    "previous/TemplateToken_v2.behavior.ts"
   ]
 }
