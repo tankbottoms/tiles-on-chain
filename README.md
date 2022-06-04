@@ -1,9 +1,21 @@
-# Tiles On Chain
+## tiles v1.2 (on-chain)
 
-Inspiration from [Neoplastics](https://neolastics.com/) and [TilesDAO](https://tiles.art/#/) with the later straight up. Reverse engineering the minified code from [tiles-api](https://github.com/TileDAO/tiles-api) the follow repository moves the entire Tile to be generated on-chain.
+with inspiration from [neoplastics](https://neolastics.com/). reversed engineered the [tilesDAO](https://tiles.art/#/) minified api server at [tiles-api](https://github.com/TileDAO/tiles-api) and reimplemented the svg generation in solidity on-chain. relaunched on juicebox v2 at [tiles](https://tiles.wtf); additionally, the tiles dao juicebox treasury is accessible outside of the juicebox.money website
 
-## Build
+#### install
 
-### Compile & test
+```bash
+yarn
+```
 
-`npx hardhat compile && yarn coverage`
+#### hot-reloading
+
+individuals with short attention spans will appreciate [https://localhost:3000](https://localhost:3000/) while manipulating the svg shapes or color palette
+
+```bash
+./script/dev.sh
+```
+
+#### compile & test
+
+`yarn && npx hardhat compile && yarn run coverage`
