@@ -71,7 +71,7 @@ async function handleRequest(req: express.Request, res: express.Response) {
   const metadataDataUri = await contract.tokenURI(req.params.tokenId || 1);
   const metadataBase64 = metadataDataUri.split(',')[1];
   const metadata = JSON.parse(Buffer.from(metadataBase64, 'base64').toString());
-  res.send(`<img src="${metadata.image}" width="500" />${reloadScript}`);
+  res.send(`<img src="${metadata.image}" width="300" />${reloadScript}`);
 }
 
 fs.watch(

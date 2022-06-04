@@ -2,11 +2,11 @@
     "name": "tiles",
     "version": "0.0.2",
     "author": {
-        "name": "",
-        "url": ""
+        "name": "tankbottoms.eth",
+        "url": "https://tiles.wtf"
     },
-    "description": "tiles.art",
-    "license": "WTFPL",
+    "description": "Re-implementation of Tiles.art fully on-chain.",
+    "license": "",
     "scripts": {
         "build": "npm run compile",
         "commit": "git-cz",
