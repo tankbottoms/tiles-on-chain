@@ -191,6 +191,34 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     _reassign(owner, msg.sender, tokenId);
   }
 
+  function transferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  ) public override {
+    _beforeTokenTransfer(_from, _to, _tokenId);
+    super.transferFrom(_from, _to, _tokenId);
+  }
+
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  ) public override {
+    _beforeTokenTransfer(_from, _to, _tokenId);
+    super.safeTransferFrom(_from, _to, _tokenId);
+  }
+
+  function safeTransferFrom(
+    address _from,
+    address _to,
+    uint256 _tokenId,
+    bytes calldata
+  ) public override {
+    _beforeTokenTransfer(_from, _to, _tokenId);
+    super.safeTransferFrom(_from, _to, _tokenId);
+  }
+
   //*********************************************************************//
   // -------------------- priviledged transactions --------------------- //
   //*********************************************************************//
