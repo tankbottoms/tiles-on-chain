@@ -16,10 +16,10 @@ import './Ring.sol';
 contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
   error ALREADY_ASSOCIATED();
 
-  string private red = '#FE4465';
-  string private black = '#222';
-  string private blue = '#1A49EF';
-  string private yellow = '#F8D938';
+  string private constant red = '#FE4465';
+  string private constant black = '#222';
+  string private constant blue = '#1A49EF';
+  string private constant yellow = '#F8D938';
 
   string[][] private sectorColorVariants = [
     [red, yellow, black],

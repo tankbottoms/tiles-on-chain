@@ -21,9 +21,9 @@ abstract contract AbstractTileNFTContent {
     '<path d="M50 0C50 27.6142 27.6142 50 0 50V0H50Z" fill="#000"/>'
   ];
 
-  string canvasColor = '#faf3e8';
+  string constant canvasColor = '#faf3e8';
 
-  string head =
+  string constant head =
     string(
       abi.encodePacked(
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" version="1.1" width="360" height="360" id="SvgjsSvg1000"><rect width="360" height="360" fill="',
@@ -32,9 +32,9 @@ abstract contract AbstractTileNFTContent {
       )
     );
 
-  string foot = '</g></g></svg>';
+  string constant foot = '</g></g></svg>';
 
-  uint16 sectorSize = 100;
+  uint16 constant sectorSize = 100;
 
   uint8[] public positionIndex = [
     0,
