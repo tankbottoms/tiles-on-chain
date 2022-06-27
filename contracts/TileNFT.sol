@@ -20,11 +20,12 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   error INVALID_AMOUNT();
   error ALREADY_MINTED();
 
+  
+  ITileContentProvider private immutable tokenUriResolver;
   string public baseUri;
-  IPriceResolver private priceResolver;
-  ITileContentProvider private tokenUriResolver;
-  mapping(address => bool) private minters;
   IJBProjectPayer private treasury;
+  IPriceResolver private priceResolver;
+  mapping(address => bool) private minters;
 
   /**
     @notice
@@ -109,7 +110,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
       revert INCORRECT_PRICE();
     }
 
-    if (address(treasury) != address(0) && msg.value > 0) {
+    if (address(treasury) != address(0) && msg.value != 0) {
       payable(address(treasury)).transfer(msg.value);
     }
 
@@ -134,7 +135,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
       revert INCORRECT_PRICE();
     }
 
-    if (address(treasury) != address(0) && msg.value > 0) {
+    if (address(treasury) != address(0) && msg.value != 0) {
       payable(address(treasury)).transfer(msg.value);
     }
 
@@ -157,7 +158,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
       revert INCORRECT_PRICE();
     }
 
-    if (address(treasury) != address(0) && msg.value > 0) {
+    if (address(treasury) != address(0) && msg.value != 0) {
       payable(address(treasury)).transfer(msg.value);
     }
 
