@@ -1,5 +1,9 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
+import { deployMockContract } from '@ethereum-waffle/mock-contract';
+
+import jbDirectory from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
+import jbETHPaymentTerminal from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
 
 import * as MerkleHelper from '../components/MerkleHelper';
 
@@ -7,9 +11,19 @@ describe('TileNFT Merkle-tree mint tests', function () {
     const listedPrice = ethers.utils.parseEther('0.0001');
     const unlistedPrice = ethers.utils.parseEther('0.001');
     const listedAccountOffset = 3;
+    const projectId = 99;
+    const ethToken = '0x000000000000000000000000000000000000EEEe'; // JBTokens.ETH
 
     async function setup() {
         const [deployer, ...accounts] = await ethers.getSigners();
+
+        const ethTerminal = await deployMockContract(deployer, jbETHPaymentTerminal.abi);
+        await ethTerminal.mock.pay.returns(0);
+
+        const mockJbDirectory = await deployMockContract(deployer, jbDirectory.abi);
+        await mockJbDirectory.mock.primaryTerminalOf.withArgs(projectId, ethToken).returns(ethTerminal.address);
+        await mockJbDirectory.mock.isTerminalOf.withArgs(projectId, ethTerminal.address).returns(true);
+        await mockJbDirectory.mock.isTerminalOf.withArgs(projectId, deployer.address).returns(false);
 
         const stringHelpersFactory = await ethers.getContractFactory('StringHelpers', deployer);
         const stringHelpersLibrary = await stringHelpersFactory.connect(deployer).deploy();
@@ -44,7 +58,8 @@ describe('TileNFT Merkle-tree mint tests', function () {
                 '',
                 merkleRootPriceResolverResolver.address,
                 tileContentProvider.address,
-                accounts[0].address,
+                mockJbDirectory.address,
+                projectId,
                 'ipfs://metadata');
 
         return {

@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjectPayer.sol';
+import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBDirectory.sol';
+import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBPaymentTerminal.sol';
+import '@jbx-protocol/contracts-v2/contracts/libraries/JBTokens.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -24,11 +26,12 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   IPriceResolver private priceResolver;
   ITileContentProvider private tokenUriResolver;
   mapping(address => bool) private minters;
-  IJBProjectPayer private treasury;
+  IJBDirectory private jbxDirectory;
+  uint256 jbxProjectId;
 
   /**
     @notice
-    URI containing Opensea-style metadata.
+    URI containing OpenSea-style metadata.
   */
   string private _contractUri;
 
@@ -53,7 +56,9 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     @param _baseUri Token base URI if URI resolver is not present.
     @param _priceResolver Price resolver.
     @param _tokenUriResolver Token URI resolver.
-    @param _treasury Jukebox.money project payment interface.
+    @param _jbxDirectory Jukebox project directory.
+    @param _jbxProjectId Juicebox project id.
+    @param _metadataUri OpenSea-style contract metadata.
    */
   constructor(
     string memory _name,
@@ -61,13 +66,15 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     string memory _baseUri,
     IPriceResolver _priceResolver,
     ITileContentProvider _tokenUriResolver,
-    IJBProjectPayer _treasury,
+    IJBDirectory _jbxDirectory,
+    uint256 _jbxProjectId,
     string memory _metadataUri
   ) ERC721Enumerable(_name, _symbol) {
     baseUri = _baseUri;
     priceResolver = _priceResolver;
     tokenUriResolver = _tokenUriResolver;
-    treasury = _treasury;
+    jbxDirectory = _jbxDirectory;
+    jbxProjectId = _jbxProjectId;
     _contractUri = _metadataUri;
 
     if (address(_tokenUriResolver) != address(0)) {
@@ -109,9 +116,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
       revert INCORRECT_PRICE();
     }
 
-    if (address(treasury) != address(0) && msg.value > 0) {
-      payable(address(treasury)).transfer(msg.value);
-    }
+    _payTreasury();
 
     mintedTokenId = _mint(msg.sender, msg.sender);
   }
@@ -134,9 +139,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
       revert INCORRECT_PRICE();
     }
 
-    if (address(treasury) != address(0) && msg.value > 0) {
-      payable(address(treasury)).transfer(msg.value);
-    }
+    _payTreasury();
 
     mintedTokenId = _mint(msg.sender, tile);
   }
@@ -157,9 +160,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
       revert INCORRECT_PRICE();
     }
 
-    if (address(treasury) != address(0) && msg.value > 0) {
-      payable(address(treasury)).transfer(msg.value);
-    }
+    _payTreasury();
 
     mintedTokenId = _mint(msg.sender, tile);
   }
@@ -259,13 +260,6 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   }
 
   /**
-    @notice Changes the treasury address.
-    */
-  function setTreasury(IJBProjectPayer _treasury) external override onlyOwner {
-    treasury = _treasury;
-  }
-
-  /**
     @notice Changes contract metadata uri.
     */
   function setContractUri(string calldata contractUri) external override onlyOwner {
@@ -298,6 +292,17 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   //*********************************************************************//
   // ----------------------- private transactions ---------------------- //
   //*********************************************************************//
+
+  /**
+   */
+  function _payTreasury() private {
+    IJBPaymentTerminal terminal = jbxDirectory.primaryTerminalOf(jbxProjectId, JBTokens.ETH);
+    if (address(terminal) == address(0)) {
+      return;
+    }
+
+    terminal.pay(jbxProjectId, msg.value, JBTokens.ETH, msg.sender, 0, false, '', '');
+  }
 
   /**
     @notice Mints the token, returns minted token id.

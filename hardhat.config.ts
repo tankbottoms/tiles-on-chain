@@ -2,6 +2,7 @@ import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
+import * as dotenv from "dotenv";
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 
@@ -11,7 +12,7 @@ import { resolve } from 'path';
 import { HardhatUserConfig, NetworkUserConfig } from 'hardhat/types';
 import './type-extensions';
 
-dotenvConfig({ path: resolve(__dirname, './.env') });
+dotenv.config();
 
 const chainIds = {
     mainnet: 1,
@@ -104,12 +105,10 @@ const config: HardhatUserConfig = {
             },
             chainId: chainIds.hardhat,
         },
-        ropsten: createConfig('ropsten'),
-        rinkeby: createConfig('rinkeby'),
-        koban: createConfig('kovan'),
-        mainnet: createConfig('mainnet'),
-        ploygon: createConfig('mainnet', 'polygon'),
-        mumbai: createConfig('mumbai', 'polygon'),
+        rinkeby: {
+            url: `${process.env.RINKEBY_URL}/${process.env.ALCHEMY_RINKEBY_KEY}`,
+            accounts: [`${process.env.PRIVATE_KEY}`]
+        },
     },
     solidity: {
         compilers: [

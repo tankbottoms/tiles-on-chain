@@ -36,8 +36,6 @@ interface ITileNFT {
 
   function setPriceResolver(IPriceResolver) external;
 
-  function setTreasury(IJBProjectPayer) external;
-
   function setContractUri(string calldata) external;
 
   function transferBalance(address payable, uint256) external;
