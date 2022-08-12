@@ -14,7 +14,8 @@ const jbDirectory: any = {
 const tilesMetadata = {
   name: `Infinite Tiles 2.0`,
   symbol: `TILES2`,
-  openSeaMetadata: `ipfs://QmNkxcqmAi1bWvNPguPwdjc4Ka8PW6JAw6Rg7x4u5iZvKG`,
+  openSeaMetadata: `ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z`,
+  legacyTilesContract: `0x64931F06d3266049Bf0195346973762E6996D764`,
 };
 
 async function main() {
@@ -45,7 +46,7 @@ async function main() {
   const legacyOwnershipPriceResolver = await legacyOwnershipPriceResolverFactory
     .connect(deployer)
     .deploy(
-      '0x64931F06d3266049Bf0195346973762E6996D764',
+      tilesMetadata.legacyTilesContract,
       basePrice,
       multiplier,
       tierSize,
