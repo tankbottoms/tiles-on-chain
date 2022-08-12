@@ -87,8 +87,7 @@ async function main() {
       ],
     });
   } catch (err) {
-    console.log('Could not register contract code');
-    console.log(err);
+    console.error('Could not register contract code', err);
   }
 }
 
