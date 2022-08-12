@@ -12,8 +12,8 @@ const jbDirectory: any = {
 };
 
 const tilesMetadata = {
-  name: `Infinite Tiles v1.2`,
-  symbol: `TILESv1.2`,
+  name: `Infinite Tiles 2.0`,
+  symbol: `TILES2`,
   openSeaMetadata: `ipfs://QmNkxcqmAi1bWvNPguPwdjc4Ka8PW6JAw6Rg7x4u5iZvKG`,
 };
 
