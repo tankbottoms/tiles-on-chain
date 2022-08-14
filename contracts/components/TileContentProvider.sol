@@ -64,6 +64,8 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
   string private black = '#222';
   string private blue = '#1A49EF';
   string private yellow = '#F8D938';
+  string private description =
+    'Humans are characterized by a desire to form communities around ideas, symbols, and artifacts that satisfy our overlapping interpretations of beauty. Tiles are a celebration of what gives meaning to those communities: the individual.  There is one Tile generated for every possible ETH wallet address, each representing a unique identity in the decentralized ecosystem that makes projects like this possible.  Mathematically, all Tiles are equally rare. They are all fashioned from the same assortment of simple shapes and colors, but each in a unique way. In that sense, Tiles are a bit like us.  Owning a Tile is an invitation to participate in the TileDAO, which receives all revenue from the Tiles primary sale.  Because the supply is virtually infinite, funding for the DAO may continue indefinitely, as long as Tiles are sold.';
 
   string[][] private sectorColorVariants = [
     [red, yellow, black],
@@ -132,6 +134,8 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
       ringsCount += 1;
     }
 
+    string circleColor = '';
+
     for (uint8 r = 0; r < 3; r++) {
       for (uint8 i = 0; i < 9; i++) {
         (string memory svg, string memory color) = generateTileSectors(addressSegments, i, r);
@@ -169,6 +173,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
               '</g>'
             )
           );
+          circleColor = color;
         }
       }
 
@@ -226,18 +231,22 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
       bytes(
         string(
           abi.encodePacked(
-            '{"name": "Tiles #',
+            '{"name": "',
             Strings.toString(uint256(uint160(addr))),
-            '","attributes": [ { "trait_type": "Color", "value": "',
-            'colorName',
-            '" }, { "trait_type": "Unique Tiles", "value": ',
-            '0',
-            ' }, { "trait_type": "Rings", "value": ',
-            '0',
+            '","attributes": [ ', 
+            '{ "trait_type": "Color", "value": "', 'colorName',
+            '" }, { "trait_type": "Circle color", "value": ',
+            Strings.toString(circleColor),
+            ' }, { "trait_type": "Rings count", "value": ',
+            Strings.toString(uint256(uint8(ringsCount))),
             ' }, { "trait_type": "Frequency Multiple", "value": ',
             Strings.toString(0),
             ' }]',
-            ', "description": "description goes here", "image": "data:image/svg+xml;base64,',
+            ', "description": "',
+            Strings.toString(description), '", ',
+            '"image": "data:image/svg+xml;base64,',
+            Base64.encode(bytes(string(abi.encodePacked(str)))), '"',
+            '"image_data": "data:image/svg+xml;base64,',
             Base64.encode(bytes(string(abi.encodePacked(str)))),
             '"}'
           )
