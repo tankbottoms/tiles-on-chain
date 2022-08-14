@@ -42,7 +42,7 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                                                          
+      Infinite Tiles v2.0.0                                                               
 */
 
 import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
