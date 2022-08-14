@@ -3,7 +3,7 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
 import * as dotenv from 'dotenv';
-import 'hardhat-contract-sizer';
+// import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 
@@ -164,13 +164,15 @@ const config: HardhatUserConfig = {
     artifacts: './artifacts',
     cache: './cache',
     tests: './test',
+    /*
+    contractSizer: {
+      alphaSort: true,
+      disambiguatePaths: false,
+      runOnCompile: true,
+      strict: false,
+    },
+    */
   },
-  contractSizer: {
-    alphaSort: true,
-    disambiguatePaths: false,
-    runOnCompile: true,
-    strict: false,
-},
 };
 
 export default config;

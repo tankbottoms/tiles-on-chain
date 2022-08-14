@@ -134,7 +134,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
       ringsCount += 1;
     }
 
-    string circleColor = '';
+    string memory circleColor = '';
 
     for (uint8 r = 0; r < 3; r++) {
       for (uint8 i = 0; i < 9; i++) {
@@ -233,20 +233,18 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
           abi.encodePacked(
             '{"name": "',
             Strings.toString(uint256(uint160(addr))),
-            '","attributes": [ ', 
-            '{ "trait_type": "Color", "value": "', 'colorName',
+            '","attributes": [ ',
+            '{ "trait_type": "Ring size", "value": "',
+            rings[0].size,
             '" }, { "trait_type": "Circle color", "value": ',
-            Strings.toString(circleColor),
+            circleColor,
             ' }, { "trait_type": "Rings count", "value": ',
             Strings.toString(uint256(uint8(ringsCount))),
-            ' }, { "trait_type": "Frequency Multiple", "value": ',
-            Strings.toString(0),
             ' }]',
             ', "description": "',
-            Strings.toString(description), '", ',
+            description,
+            '", ',
             '"image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(string(abi.encodePacked(str)))), '"',
-            '"image_data": "data:image/svg+xml;base64,',
             Base64.encode(bytes(string(abi.encodePacked(str)))),
             '"}'
           )
