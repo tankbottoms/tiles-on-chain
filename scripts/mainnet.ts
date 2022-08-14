@@ -30,19 +30,21 @@ async function main() {
 
   const stringHelpersFactory = await ethers.getContractFactory('StringHelpers', deployer);
   const stringHelpersLibrary = await stringHelpersFactory.connect(deployer).deploy();
+  console.log(`Deployed StringHelpers to ${stringHelpersLibrary.address}`);
 
   const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
     libraries: { StringHelpers: stringHelpersLibrary.address },
     signer: deployer,
   });
-
   const tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
   await tileContentProvider.deployed();
+  console.log(`Deployed TileContentProvider to ${tileContentProvider.address}`);
 
   const legacyOwnershipPriceResolverFactory = await ethers.getContractFactory(
     'LegacyOwnershipPriceResolver',
     deployer,
-  );
+  );  
+  
   const legacyOwnershipPriceResolver = await legacyOwnershipPriceResolverFactory
     .connect(deployer)
     .deploy(
@@ -52,7 +54,17 @@ async function main() {
       tierSize,
       priceCap,
       PriceFunction.LINEAR,
-    );
+  );
+  
+  console.log(`LegacyOwnershipPriceResolver contract parameters`, {
+     tilesMetadata.legacyTilesContract,
+      basePrice,
+      multiplier,
+      tierSize,
+      priceCap,
+      PriceFunction.LINEAR,
+  });
+
   await legacyOwnershipPriceResolver.deployed();
 
   const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
@@ -68,9 +80,23 @@ async function main() {
       projectId,
       tilesMetadata.openSeaMetadata,
     );
-  await tileNFT.deployed();
 
-  console.log(`tiles: ${tileNFT.address}`); //
+  console.log(
+    `tiles contract parameters:`,
+    `${
+      (tilesMetadata.name,
+      tilesMetadata.symbol,
+      '',
+      legacyOwnershipPriceResolver.address,
+      tileContentProvider.address,
+      jbDirectoryAddress,
+      projectId,
+      tilesMetadata.openSeaMetadata)
+    }`,
+  );
+
+  await tileNFT.deployed();
+  console.log(`tiles: ${tileNFT.address}`);
 
   try {
     await hre.run('verify:verify', {
