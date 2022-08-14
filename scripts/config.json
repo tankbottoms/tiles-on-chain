@@ -1,0 +1,36 @@
+{
+    "rinkeby": {
+        "name": "Infinite Tiles 2.0",
+        "symbol": "TILES2",
+        "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
+        "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
+        "projectId": "4471",
+        "basePrice": "0.0001",
+        "priceCap": "128",
+        "multiplier": 2,
+        "tierSize": 16,
+        "jbxDirectory": "0x1A9b04A9617ba5C9b7EBfF9668C30F41db6fC21a",
+        "stringHelpersLibrary": "0x761ae59025436edaa6496f76A63822DF9D0AF836",
+        "tileContentProvider": "0x211bc00B9C0d69956701329705Da5281F475f996",
+        "priceResolver": "0x396d3a1bE8c298893A912eb2ad6cACaB82f360e0",
+        "priceResolverType": "SupplyPriceResolver",
+        "token": "0x2DC5372d0ebBDEe29E962bB7a7947A3278822300"
+    },
+    "mainnet": {
+        "name": "Infinite Tiles 2.0",
+        "symbol": "TILES2",
+        "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
+        "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
+        "projectId": "41",
+        "basePrice": "0.0001",
+        "priceCap": "128",
+        "multiplier": 2,
+        "tierSize": 512,
+        "jbxDirectory": "0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C",
+        "stringHelpersLibrary": "0xa8c720adbea12435a7a2678bbeba821c7a94d48d",
+        "tileContentProvider": "0xe6c34eb2a17e16049c3ada1ae19ef02f94ba1b97",
+        "priceResolver": "0x30ebbf18cc7286105e0d02cb06ee78684aff722c",
+        "priceResolverType": "LegacyOwnershipPriceResolver",
+        "token": ""
+    }
+}

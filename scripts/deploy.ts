@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as hre from 'hardhat';
 import { ethers } from 'hardhat';
 import * as winston from 'winston';
@@ -7,44 +8,29 @@ enum PriceFunction {
     EXP,
 }
 
+type ConfigurationGroup = {
+    name: string,
+    symbol: string,
+    openSeaMetadata: string,
+    legacyTilesContract: string,
+    projectId: number | string,
+    basePrice: string,
+    priceCap: string,
+    multiplier: number | string,
+    tierSize: number | string,
+    jbxDirectory: string;
+    stringHelpersLibrary: string,
+    tileContentProvider: string,
+    priceResolver: string,
+    priceResolverType: 'SupplyPriceResolver' | 'LegacyOwnershipPriceResolver' | 'MerkleRootPriceResolver',
+    token: string
+}
+
 function sleep(ms = 1_000) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const config: any = {
-    rinkeby: {
-        name: 'Infinite Tiles 2.0',
-        symbol: 'TILES2',
-        openSeaMetadata: 'ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z',
-        legacyTilesContract: '0x64931F06d3266049Bf0195346973762E6996D764',
-        projectId: '4471',
-        basePrice: '100000000000000',
-        priceCap: '128000000000000000000',
-        multiplier: 2,
-        tierSize: 16,
-        jbxDirectory: '0x1A9b04A9617ba5C9b7EBfF9668C30F41db6fC21a',
-        stringHelpersLibrary: '0x761ae59025436edaa6496f76A63822DF9D0AF836',
-        tileContentProvider: '0x211bc00B9C0d69956701329705Da5281F475f996',
-        priceResolver: '0x396d3a1bE8c298893A912eb2ad6cACaB82f360e0',
-        token: '0x2DC5372d0ebBDEe29E962bB7a7947A3278822300'
-    },
-    mainnet: {
-        name: 'Infinite Tiles 2.0',
-        symbol: 'TILES2',
-        openSeaMetadata: 'ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z',
-        legacyTilesContract: '0x64931F06d3266049Bf0195346973762E6996D764',
-        projectId: '41',
-        basePrice: ethers.utils.parseEther('0.0001'),
-        priceCap: ethers.utils.parseEther('128'),
-        multiplier: 2,
-        tierSize: 512,
-        jbxDirectory: '0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C',
-        stringHelpersLibrary: '0xa8c720adbea12435a7a2678bbeba821c7a94d48d',
-        tileContentProvider: '0xe6c34eb2a17e16049c3ada1ae19ef02f94ba1b97',
-        priceResolver: '0x30ebbf18cc7286105e0d02cb06ee78684aff722c',
-        token: ''
-    }
-}
+const config: { [key: string]: ConfigurationGroup } = JSON.parse(fs.readFileSync('./scripts/config.json').toString());
 
 const logger = winston.createLogger({
     format: winston.format.combine(
@@ -70,7 +56,7 @@ async function main() {
         console.log(`network ${hre.network.name} not present in config set.`)
     }
 
-    const activeConfig: any = config[hre.network.name];
+    const activeConfig: ConfigurationGroup = config[hre.network.name];
     const [deployer] = await ethers.getSigners();
 
     logger.info(`deploying tiles on ${hre.network.name} as ${deployer.address}`);
@@ -85,6 +71,9 @@ async function main() {
 
         logger.info(`deployed new StringHelpers contract to ${stringHelpersLibrary.address}`);
         stringHelpersLibraryAddress = stringHelpersLibrary.address;
+
+        config[hre.network.name].stringHelpersLibrary = stringHelpersLibrary.address;
+        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
     } else {
         logger.info(`StringHelpers contract reported at ${stringHelpersLibraryAddress}`);
     }
@@ -102,29 +91,58 @@ async function main() {
 
         logger.info(`deployed new TileContentProvider contract to ${tileContentProvider.address}`);
         tileContentProviderAddress = tileContentProvider.address;
+
+        config[hre.network.name].tileContentProvider = tileContentProvider.address;
+        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
     } else {
         logger.info(`TileContentProvider contract reported at ${tileContentProviderAddress}`);
     }
 
     let priceResolverAddress = activeConfig.priceResolver;
     if (!priceResolverAddress || priceResolverAddress.length === 0) {
-        logger.debug(`deploying LegacyOwnershipPriceResolver with params: ${activeConfig.legacyTilesContract}, ${activeConfig.basePrice}, ${activeConfig.multiplier}, ${activeConfig.tierSize}, ${activeConfig.priceCap}, ${PriceFunction.LINEAR}`);
+        if (activeConfig.priceResolverType === 'LegacyOwnershipPriceResolver') {
+            logger.debug(`deploying LegacyOwnershipPriceResolver with params: ${activeConfig.legacyTilesContract}, ${activeConfig.basePrice}, ${activeConfig.multiplier}, ${activeConfig.tierSize}, ${activeConfig.priceCap}, ${PriceFunction.LINEAR}`);
 
-        const legacyOwnershipPriceResolverFactory = await ethers.getContractFactory('LegacyOwnershipPriceResolver', deployer);
-        const legacyOwnershipPriceResolver = await legacyOwnershipPriceResolverFactory
-            .connect(deployer)
-            .deploy(
-                activeConfig.legacyTilesContract,
-                activeConfig.basePrice,
-                activeConfig.multiplier,
-                activeConfig.tierSize,
-                activeConfig.priceCap,
-                PriceFunction.LINEAR
-            );
-        await legacyOwnershipPriceResolver.deployed();
+            const legacyOwnershipPriceResolverFactory = await ethers.getContractFactory('LegacyOwnershipPriceResolver', deployer);
+            const legacyOwnershipPriceResolver = await legacyOwnershipPriceResolverFactory
+                .connect(deployer)
+                .deploy(
+                    activeConfig.legacyTilesContract,
+                    ethers.utils.parseEther(activeConfig.basePrice),
+                    activeConfig.multiplier,
+                    activeConfig.tierSize,
+                    ethers.utils.parseEther(activeConfig.priceCap),
+                    PriceFunction.LINEAR
+                );
+            await legacyOwnershipPriceResolver.deployed();
 
-        logger.info(`deployed new LegacyOwnershipPriceResolver contract to ${legacyOwnershipPriceResolver.address}`);
-        priceResolverAddress = legacyOwnershipPriceResolver.address;
+            logger.info(`deployed new LegacyOwnershipPriceResolver contract to ${legacyOwnershipPriceResolver.address}`);
+            priceResolverAddress = legacyOwnershipPriceResolver.address;
+
+            config[hre.network.name].priceResolver = legacyOwnershipPriceResolver.address;
+        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+        } else if (activeConfig.priceResolverType === 'SupplyPriceResolver') {
+            logger.debug(`deploying SupplyPriceResolver with params: ${activeConfig.basePrice}, ${activeConfig.multiplier}, ${activeConfig.tierSize}, ${activeConfig.priceCap}, ${PriceFunction.LINEAR}`);
+
+            const supplyPriceResolverFactory = await ethers.getContractFactory('SupplyPriceResolver', deployer);
+            const linearSupplyPriceResolver = await supplyPriceResolverFactory
+                .connect(deployer)
+                .deploy(
+                    ethers.utils.parseEther(activeConfig.basePrice),
+                    activeConfig.multiplier,
+                    activeConfig.tierSize,
+                    ethers.utils.parseEther(activeConfig.priceCap),
+                    PriceFunction.LINEAR);
+            await linearSupplyPriceResolver.deployed();
+
+            logger.info(`deployed new SupplyPriceResolver contract to ${linearSupplyPriceResolver.address}`);
+            priceResolverAddress = linearSupplyPriceResolver.address;
+
+            config[hre.network.name].priceResolver = linearSupplyPriceResolver.address;
+        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+        } else if (activeConfig.priceResolverType === 'MerkleRootPriceResolver') {
+            // TODO
+        }
     } else {
         logger.info(`LegacyOwnershipPriceResolver contract reported at ${priceResolverAddress}`);
     }
@@ -151,6 +169,9 @@ async function main() {
 
         logger.info(`deployed new TileNFT contract to ${tileNFT.address}`);
         tokenAddress = tileNFT.address;
+
+        config[hre.network.name].token = tileNFT.address;
+        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
     } else {
         logger.info(`TileNFT contract reported at ${tokenAddress}`);
     }
