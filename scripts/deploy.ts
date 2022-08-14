@@ -39,9 +39,9 @@ const config: any = {
         multiplier: 2,
         tierSize: 512,
         jbxDirectory: '0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C',
-        stringHelpersLibrary: '',
-        tileContentProvider: '',
-        priceResolver: '',
+        stringHelpersLibrary: '0xa8c720adbea12435a7a2678bbeba821c7a94d48d',
+        tileContentProvider: '0xe6c34eb2a17e16049c3ada1ae19ef02f94ba1b97',
+        priceResolver: '0x30ebbf18cc7286105e0d02cb06ee78684aff722c',
         token: ''
     }
 }
