@@ -22,10 +22,8 @@
         "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
         "lint": "npm run lint:sol && npm run lint:prettier",
         "deploy": "npx hardhat run scripts/rinkeby.ts --network localhost",
-        "deploy:mainnet": "npx hardhat run scripts/mainnet.ts --network mainnet",
-        "deploy:rinkeby": "npx hardhat run scripts/2_deploy.ts --network rinkeby",
-        "deploy:alchemy": "npx hardhat run scripts/deploy.ts --network alchemy",
-        "deploy:mumbai": "npx hardhat run scripts/1_deploy.ts --network mumbai",
+        "deploy:mainnet": "npx hardhat run scripts/mainnet.ts --network alchemy_mainnet",
+        "deploy:rinkeby": "npx hardhat run scripts/2_deploy.ts --network alchemy_rinkeby",
         "verify": "echo \"Enter Ropsten contract address=>\" && read && npx hardhat verify --network ropsten $REPLY",
         "git": "git add . && echo \"Enter your commit message =>\" && read && git commit -m \"$REPLY :construction_worker: :octocat: :four_leaf_clover: :pray:\" && git push origin main",
         "gen:merkle-root": "ts-node scripts/data/crawl.ts && ts-node merkle-distributor/index.ts -i scripts/data/merkle-input.json -o scripts/data/merkle-root.json && rm -f scripts/data/merkle-input.json"
