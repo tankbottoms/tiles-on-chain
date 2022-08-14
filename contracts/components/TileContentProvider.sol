@@ -65,7 +65,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
   string private blue = '#1A49EF';
   string private yellow = '#F8D938';
   string private description =
-    'Humans are characterized by a desire to form communities around ideas, symbols, and artifacts that satisfy our overlapping interpretations of beauty. Tiles are a celebration of what gives meaning to those communities: the individual.  There is one Tile generated for every possible ETH wallet address, each representing a unique identity in the decentralized ecosystem that makes projects like this possible.  Mathematically, all Tiles are equally rare. They are all fashioned from the same assortment of simple shapes and colors, but each in a unique way. In that sense, Tiles are a bit like us.  Owning a Tile is an invitation to participate in the TileDAO, which receives all revenue from the Tiles primary sale.  Because the supply is virtually infinite, funding for the DAO may continue indefinitely, as long as Tiles are sold.';
+    'Humans are characterized by a desire to form communities around ideas, symbols, and artifacts that satisfy our overlapping interpretations of beauty. Tiles are a celebration of what gives meaning to those communities: the individual.  There is one Tile generated for every possible ETH wallet address, each representing a unique identity in the decentralized ecosystem that makes projects like this possible.  Mathematically, all Tiles are equally rare. They are all fashioned from the same assortment of simple shapes and colors, but each in a unique way. In that sense, Tiles are a bit like us.  Owning a Tile is an invitation to participate in the TileDAO, which receives all revenue from the Tiles primary sale.  Because the supply is virtually infinite, funding for the DAO may continue indefinitely, as long as Tiles are sold. @peripheralist';
 
   string[][] private sectorColorVariants = [
     [red, yellow, black],
@@ -135,6 +135,11 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
     }
 
     string memory circleColor = '';
+    string memory attribute_i = '';
+    string memory attribute_r = '';
+    string memory attribute_PosX = '';
+    string memory attribute_PosY = '';
+    string memory attribute_diameter10x = '';
 
     for (uint8 r = 0; r < 3; r++) {
       for (uint8 i = 0; i < 9; i++) {
@@ -207,6 +212,13 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
           posX = 100 * (posI % 3) + 50;
           posY = (posI > 5 ? 2 * 100 : posI > 2 ? 100 : 0) + 50;
         }
+
+        if (i == 0) {
+          attribute_PosX = Strings.toString(posX);
+          // attribute_PosY = uint256(uint32(posY)).toString();
+          // attribute_diameter10x = uint256(uint32(diameter10x)).toString();
+        }
+
         str = string(
           abi.encodePacked(
             str,
@@ -231,22 +243,37 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
       bytes(
         string(
           abi.encodePacked(
-            '{"name": "',
-            Strings.toString(uint256(uint160(addr))),
-            '","attributes": [ ',
-            '{ "trait_type": "Ring size", "value": "',
-            rings[0].size,
-            '" }, { "trait_type": "Circle color", "value": ',
-            circleColor,
-            ' }, { "trait_type": "Rings count", "value": ',
-            Strings.toString(uint256(uint8(ringsCount))),
-            ' }]',
+            '{',
+            '"name": "0x',
+            StringHelpers.toAsciiString(addr),
+            '", ',
             ', "description": "',
             description,
             '", ',
+            '"attributes": [ ',
+            '{ "trait_type": "Position X", "value": "',
+            attribute_PosX,
+            '" }, ',
+            /*'{ "trait_type": "Position X", "value": "',
+            attribute_PosY,
+            '" }, ',
+            '{ "trait_type": "Diameter10x", "value": "',
+            attribute_diameter10x,
+            '" }, ',*/
+            '{ "trait_type": "Circle color", "value": "',
+            circleColor,
+            '" }, ',
+            '{ "trait_type": "Rings count", "value": "',
+            Strings.toString(uint256(uint8(ringsCount))),
+            '" }, ',
+            ']',
             '"image": "data:image/svg+xml;base64,',
             Base64.encode(bytes(string(abi.encodePacked(str)))),
-            '"}'
+            '"',
+            '"image_data": "data:image/svg+xml;base64,',
+            Base64.encode(bytes(string(abi.encodePacked(str)))),
+            '"',
+            '}'
           )
         )
       )
