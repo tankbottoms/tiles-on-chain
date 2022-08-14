@@ -33,7 +33,19 @@ const PRIVATE_KEY =
 const PRIVATE_MNEMONIC = process.env.PRIVATE_KEY || '';
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || '';
 const INFURA_API_KEY = process.env.INFURA_API_KEY || '';
+const REPORT_GAS = process.env.REPORT_GAS || false;
+const ALCHEMY_MAINNET_URL = process.env.ALCHEMY_MAINNET_URL || '';
+const ALCHEMY_MAINNET_KEY = process.env.ALCHEMY_MAINNET_KEY || '';
+const ALCHEMY_RINKEBY_URL = process.env.ALCHEMY_RINKEBY_URL || '';
+const ALCHEMY_RINKEBY_KEY = process.env.ALCHEMY_RINKEBY_KEY || '';
+
 const ACCOUNT_PATH = "m/44'/60'/0'/0";
+
+if (ALCHEMY_MAINNET_URL == '' && ALCHEMY_MAINNET_KEY == '') {
+  console.warn(`Alchemy mainnet URL and key not set.`);
+} else {
+  console.warn(`Alchemy mainnet ${ALCHEMY_MAINNET_URL}/${ALCHEMY_MAINNET_KEY} set.`);
+}
 
 const traverseKeys = (obj: any, results = []) => {
   const r: any = results;
@@ -97,7 +109,7 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   gasReporter: {
     currency: 'USD',
-    enabled: !!process.env.REPORT_GAS,
+    enabled: !!REPORT_GAS,
     showTimeSpent: true,
     gasPrice: 100,
     excludeContracts: [],
@@ -112,12 +124,12 @@ const config: HardhatUserConfig = {
       chainId: chainIds.hardhat,
     },
     rinkeby_alchemy: {
-      url: `${process.env.ALCHEMY_RINKEBY_URL}/${process.env.ALCHEMY_RINKEBY_KEY}`,
-      accounts: [`${process.env.PRIVATE_KEY}`],
+      url: `${ALCHEMY_RINKEBY_URL}/${ALCHEMY_RINKEBY_KEY}`,
+      accounts: [`${PRIVATE_KEY}`],
     },
     mainnet_alchemy: {
-      url: `${process.env.ALCHEMY_MAINNET_URL}/${process.env.ALCHEMY_MAINNET_KEY}`,
-      accounts: [`${process.env.PRIVATE_KEY}`],
+      url: `${ALCHEMY_MAINNET_URL}/${ALCHEMY_MAINNET_KEY}`,
+      accounts: [`${PRIVATE_KEY}`],
     },
     mainnet_infura: {
       url: 'https://mainnet.infura.io/v3/' + INFURA_API_KEY,
