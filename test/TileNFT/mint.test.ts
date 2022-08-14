@@ -141,11 +141,9 @@ describe('TileNFT mint tests', function () {
     let expectedTokenId = 1;
     let addressIndex = 0;
     await expect(
-      tileNFT
-        .connect(accounts[addressIndex])
-        .grab('0xa999999999999999999999999999999999999999', {
-          value: ethers.utils.parseEther('0.0001'),
-        }),
+      tileNFT.connect(accounts[addressIndex]).grab('0xa999999999999999999999999999999999999999', {
+        value: ethers.utils.parseEther('0.0001'),
+      }),
     )
       .to.emit(tileNFT, 'Transfer')
       .withArgs(ethers.constants.AddressZero, accounts[addressIndex].address, expectedTokenId);
