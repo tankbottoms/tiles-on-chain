@@ -69,7 +69,7 @@ async function main() {
         const stringHelpersLibrary = await stringHelpersFactory.connect(deployer).deploy();
         await stringHelpersLibrary.deployed();
 
-        logger.info(`deployed new StringHelpers contract to ${stringHelpersLibrary.address}`);
+        logger.info(`deployed new StringHelpers contract to ${stringHelpersLibrary.address} in ${stringHelpersLibrary.deployTransaction.hash}`);
         stringHelpersLibraryAddress = stringHelpersLibrary.address;
 
         config[hre.network.name].stringHelpersLibrary = stringHelpersLibrary.address;
@@ -89,7 +89,7 @@ async function main() {
         const tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
         await tileContentProvider.deployed();
 
-        logger.info(`deployed new TileContentProvider contract to ${tileContentProvider.address}`);
+        logger.info(`deployed new TileContentProvider contract to ${tileContentProvider.address} in ${tileContentProvider.deployTransaction.hash}`);
         tileContentProviderAddress = tileContentProvider.address;
 
         config[hre.network.name].tileContentProvider = tileContentProvider.address;
@@ -116,7 +116,7 @@ async function main() {
                 );
             await legacyOwnershipPriceResolver.deployed();
 
-            logger.info(`deployed new LegacyOwnershipPriceResolver contract to ${legacyOwnershipPriceResolver.address}`);
+            logger.info(`deployed new LegacyOwnershipPriceResolver contract to ${legacyOwnershipPriceResolver.address} in ${legacyOwnershipPriceResolver.deployTransaction.hash}`);
             priceResolverAddress = legacyOwnershipPriceResolver.address;
 
             config[hre.network.name].priceResolver = legacyOwnershipPriceResolver.address;
@@ -135,7 +135,7 @@ async function main() {
                     PriceFunction.LINEAR);
             await linearSupplyPriceResolver.deployed();
 
-            logger.info(`deployed new SupplyPriceResolver contract to ${linearSupplyPriceResolver.address}`);
+            logger.info(`deployed new SupplyPriceResolver contract to ${linearSupplyPriceResolver.address} in ${linearSupplyPriceResolver.deployTransaction.hash}`);
             priceResolverAddress = linearSupplyPriceResolver.address;
 
             config[hre.network.name].priceResolver = linearSupplyPriceResolver.address;
@@ -167,7 +167,7 @@ async function main() {
 
         await tileNFT.deployed();
 
-        logger.info(`deployed new TileNFT contract to ${tileNFT.address}`);
+        logger.info(`deployed new TileNFT contract to ${tileNFT.address} in ${tileNFT.deployTransaction.hash}`);
         tokenAddress = tileNFT.address;
 
         config[hre.network.name].token = tileNFT.address;
