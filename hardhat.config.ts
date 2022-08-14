@@ -3,7 +3,7 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
 import * as dotenv from 'dotenv';
-// import 'hardhat-contract-sizer';
+import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 
@@ -149,7 +149,7 @@ const config: HardhatUserConfig = {
           // You should disable the optimizer when debugging
           // https://hardhat.org/hardhat-network/#solidity-optimizer-support
           optimizer: {
-            enabled: true,
+            enabled: false,
             runs: 800,
           },
         },
@@ -164,14 +164,12 @@ const config: HardhatUserConfig = {
     artifacts: './artifacts',
     cache: './cache',
     tests: './test',
-    /*
-    contractSizer: {
-      alphaSort: true,
-      disambiguatePaths: false,
-      runOnCompile: true,
-      strict: false,
-    },
-    */
+  },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: false,
   },
 };
 
