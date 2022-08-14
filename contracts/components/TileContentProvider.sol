@@ -42,17 +42,17 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                                                          
+      Infinite Tiles v2.0.0                                                               
 */
 
 import '@openzeppelin/contracts/utils/Strings.sol';
 
-import './AbstractTileNFTContent.sol';
-import './Base64.sol';
-import './StringHelpers.sol';
 import '../interfaces/ITileContentProvider.sol';
 import '../interfaces/ITileNFT.sol';
+import './AbstractTileNFTContent.sol';
+import './Base64.sol';
 import './Ring.sol';
+import './StringHelpers.sol';
 
 /**
   @notice 
@@ -102,52 +102,65 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
     uri = getSvgContent(parent.addressForId(_tokenId));
   }
 
-  function getSvgContent(address addr) public view override returns (string memory) {
-    string memory str = head;
-    uint16[4][10] memory addressSegments;
-    uint16[] memory chars = bytesToChars(addr);
+  function prepareImageSeed(address _tile)
+    internal
+    view
+    returns (
+      uint16[4][10] memory addressSegments,
+      uint8 ringsCount,
+      Ring[] memory rings
+    )
+  {
+    uint16[] memory chars = bytesToChars(_tile);
 
-    for (uint16 i = 0; i < 10; i++) {
+    for (uint16 i; i != 10; ) {
       addressSegments[i][0] = chars[i * 4 + 0];
       addressSegments[i][1] = chars[i * 4 + 1];
       addressSegments[i][2] = chars[i * 4 + 2];
       addressSegments[i][3] = chars[i * 4 + 3];
+      ++i;
     }
 
-    Ring[] memory rings = new Ring[](2);
-
     uint160[2] memory indexes = [
-      (uint160(addr) / (16**38)) % 16**2,
-      (uint160(addr) / (16**36)) % 16**2
+      (uint160(_tile) / (16**38)) % 16**2,
+      (uint160(_tile) / (16**36)) % 16**2
     ];
 
-    uint8 ringsCount = 0;
+    rings = new Ring[](2);
+    for (uint256 i; i != 2; ) {
+      if (indexes[i] == 0) {
+        ++i;
+        continue;
+      }
 
-    for (uint256 i = 0; i < 2; i++) {
-      if (indexes[i] == 0) continue;
       uint160 ringIndex = indexes[i] > 0 ? indexes[i] - 1 : indexes[i];
       rings[ringsCount].positionIndex = positionIndex[ringIndex];
       rings[ringsCount].size = size[ringIndex];
       rings[ringsCount].layer = layer[ringIndex];
       rings[ringsCount].positionKind = positionKind[ringIndex];
       rings[ringsCount].solid = solid[ringIndex];
-      ringsCount += 1;
+      ++ringsCount;
+      ++i;
     }
+  }
 
-    string memory circleColor = '';
-    string memory attribute_i = '';
-    string memory attribute_r = '';
-    string memory attribute_PosX = '';
-    string memory attribute_PosY = '';
-    string memory attribute_diameter10x = '';
+  /**
+   * @notice Returns base-64 encoded image content
+   */
+  function prepareImageContent(
+    uint16[4][10] memory addressSegments,
+    uint8 ringsCount,
+    Ring[] memory rings
+  ) internal view returns (string memory image) {
+    image = svgHeader;
 
-    for (uint8 r = 0; r < 3; r++) {
-      for (uint8 i = 0; i < 9; i++) {
+    for (uint8 r; r < 3; ) {
+      for (uint8 i; i < 9; ) {
         (string memory svg, string memory color) = generateTileSectors(addressSegments, i, r);
         if (StringHelpers.stringStartsWith(svg, '<path')) {
-          str = string(
+          image = string(
             abi.encodePacked(
-              str,
+              image,
               '<g transform="matrix(1,0,0,1,',
               Strings.toString((i % 3) * 100),
               ',',
@@ -162,9 +175,9 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
             )
           );
         } else if (StringHelpers.stringStartsWith(svg, '<circle')) {
-          str = string(
+          image = string(
             abi.encodePacked(
-              str,
+              image,
               '<g transform="matrix(1,0,0,1,',
               Strings.toString((i % 3) * 100),
               ',',
@@ -178,11 +191,93 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
               '</g>'
             )
           );
-          circleColor = color;
         }
+
+        ++i;
       }
 
-      for (uint8 i = 0; i < ringsCount; i++) {
+      for (uint8 i; i < ringsCount; ) {
+        Ring memory ring = rings[i];
+        if (ring.layer != r) {
+          continue;
+        }
+
+        uint32 posX;
+        uint32 posY;
+        uint32 diameter10x;
+
+        if (ring.size == 0) {
+          diameter10x = 100;
+        } else if (ring.size == 1) {
+          diameter10x = 488;
+        } else if (ring.size == 2) {
+          diameter10x = 900;
+        } else if (ring.size == 3) {
+          diameter10x = 1900;
+        }
+        if (2 == ring.layer) {
+          diameter10x += 5;
+        }
+        uint32 posI = uint32(ring.positionIndex);
+        if (!ring.positionKind) {
+          posX = (posI % 4) * 100;
+          posY = posI > 11 ? 300 : posI > 7 ? 200 : posI > 3 ? 100 : 0;
+        } else if (ring.positionKind) {
+          posX = 100 * (posI % 3) + 50;
+          posY = (posI > 5 ? 2 * 100 : posI > 2 ? 100 : 0) + 50;
+        }
+
+        image = string(
+          abi.encodePacked(
+            image,
+            '<g transform="matrix(1,0,0,1,',
+            Strings.toString(posX),
+            ',',
+            Strings.toString(posY),
+            ')"><circle r="',
+            StringHelpers.divide(diameter10x, 20, 5),
+            '" fill="',
+            ring.solid ? canvasColor : 'none',
+            '" stroke-width="10" stroke="',
+            canvasColor,
+            '" /></g>'
+          )
+        );
+
+        ++i;
+      }
+
+      ++r;
+    }
+
+    image = string(abi.encodePacked(image, svgFooter));
+
+    image = Base64.encode(bytes(string(abi.encodePacked(image))));
+  }
+
+  /**
+   * @notice Returns plain text JSON traits array.
+   */
+  function prepareTraitsContent(
+    uint16[4][10] memory addressSegments,
+    uint8 ringsCount,
+    Ring[] memory rings
+  ) internal view returns (string memory traits) {
+    string memory circleColor = '';
+    string memory attribute_PosX = '';
+    string memory attribute_PosY = '';
+    string memory attribute_diameter10x = '';
+
+    for (uint8 r; r < 3; ) {
+      for (uint8 i; i < 9; ) {
+        (string memory svg, string memory color) = generateTileSectors(addressSegments, i, r);
+        if (StringHelpers.stringStartsWith(svg, '<circle')) {
+          circleColor = color;
+        }
+        ++i;
+      }
+
+      for (uint8 i; i < ringsCount; ) {
         Ring memory ring = rings[i];
         if (ring.layer != r) {
           continue;
@@ -215,65 +310,65 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
 
         if (i == 0) {
           attribute_PosX = Strings.toString(posX);
-          // attribute_PosY = uint256(uint32(posY)).toString();
-          // attribute_diameter10x = uint256(uint32(diameter10x)).toString();
+          attribute_PosY = Strings.toString(posY);
+          attribute_diameter10x = Strings.toString(diameter10x);
         }
 
-        str = string(
-          abi.encodePacked(
-            str,
-            '<g transform="matrix(1,0,0,1,',
-            Strings.toString(posX),
-            ',',
-            Strings.toString(posY),
-            ')"><circle r="',
-            StringHelpers.divide(diameter10x, 20, 5),
-            '" fill="',
-            ring.solid ? canvasColor : 'none',
-            '" stroke-width="10" stroke="',
-            canvasColor,
-            '" /></g>'
-          )
-        );
+        ++i;
       }
+      ++r;
     }
 
-    str = string(abi.encodePacked(str, foot));
+    traits = string(
+      abi.encodePacked(
+        '[ ',
+        '{ "trait_type": "Position X", "value": "',
+        attribute_PosX,
+        '" }, ',
+        '{ "trait_type": "Position Y", "value": "',
+        attribute_PosY,
+        '" }, ',
+        '{ "trait_type": "Diameter10x", "value": "',
+        attribute_diameter10x,
+        '" }, ',
+        '{ "trait_type": "Circle color", "value": "',
+        circleColor,
+        '" }, { "trait_type": "Rings count", "value": "',
+        Strings.toString(uint256(uint8(ringsCount))),
+        '" }, ]'
+      )
+    );
+  }
+
+  /**
+   * @notice Returns full NFT metadata JSON including image content and traits.
+   */
+  function getSvgContent(address _tile) public view override returns (string memory) {
+    uint16[4][10] memory addressSegments;
+    uint8 ringsCount;
+    Ring[] memory rings;
+
+    (addressSegments, ringsCount, rings) = prepareImageSeed(_tile);
+
+    string memory traits = prepareTraitsContent(addressSegments, ringsCount, rings);
+
+    string memory image = prepareImageContent(addressSegments, ringsCount, rings);
+
     string memory json = Base64.encode(
       bytes(
         string(
           abi.encodePacked(
-            '{',
-            '"name": "0x',
-            StringHelpers.toAsciiString(addr),
-            '", ',
-            ', "description": "',
+            '{ "name": "0x',
+            StringHelpers.toAsciiString(_tile),
+            '", "description": "',
             description,
-            '", ',
-            '"attributes": [ ',
-            '{ "trait_type": "Position X", "value": "',
-            attribute_PosX,
-            '" }, ',
-            /*'{ "trait_type": "Position X", "value": "',
-            attribute_PosY,
-            '" }, ',
-            '{ "trait_type": "Diameter10x", "value": "',
-            attribute_diameter10x,
-            '" }, ',*/
-            '{ "trait_type": "Circle color", "value": "',
-            circleColor,
-            '" }, ',
-            '{ "trait_type": "Rings count", "value": "',
-            Strings.toString(uint256(uint8(ringsCount))),
-            '" }, ',
-            ']',
-            '"image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(string(abi.encodePacked(str)))),
-            '"',
-            '"image_data": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(string(abi.encodePacked(str)))),
-            '"',
-            '}'
+            '", "attributes": ',
+            traits,
+            ', "image": "data:image/svg+xml;base64,',
+            image,
+            '", "image_data": "data:image/svg+xml;base64,',
+            image,
+            '" }'
           )
         )
       )
