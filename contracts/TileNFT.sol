@@ -42,7 +42,7 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                                                          
+      Infinite Tiles v2.0.0                                                               
 */
 
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBDirectory.sol';
@@ -331,6 +331,13 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     uint256 amount
   ) external override onlyOwner {
     token.transfer(to, amount);
+  }
+
+  /**
+    @notice Changes the associated price resolver.
+    */
+  function setTokenUriResolver(ITileContentProvider _tokenUriResolver) external override onlyOwner {
+    tokenUriResolver = _tokenUriResolver;
   }
 
   //*********************************************************************//

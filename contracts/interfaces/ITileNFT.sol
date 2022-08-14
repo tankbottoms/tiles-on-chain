@@ -42,13 +42,14 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                                                          
+      Infinite Tiles v2.0.0                                                               
 */
 
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjectPayer.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import './IPriceResolver.sol';
+import './ITileContentProvider.sol';
 
 /**
   @notice Tiles on chain interface definition.
@@ -89,4 +90,6 @@ interface ITileNFT {
     address to,
     uint256 amount
   ) external;
+
+  function setTokenUriResolver(ITileContentProvider) external;
 }
