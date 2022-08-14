@@ -3,12 +3,11 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
 import * as dotenv from 'dotenv';
+import 'hardhat-contract-sizer';
 import 'hardhat-gas-reporter';
 import 'solidity-coverage';
 
 import { task } from 'hardhat/config';
-import { config as dotenvConfig } from 'dotenv';
-import { resolve } from 'path';
 import { HardhatUserConfig, NetworkUserConfig } from 'hardhat/types';
 import './type-extensions';
 
@@ -123,19 +122,19 @@ const config: HardhatUserConfig = {
       },
       chainId: chainIds.hardhat,
     },
-    rinkeby_alchemy: {
+    rinkeby: {
       url: `${ALCHEMY_RINKEBY_URL}/${ALCHEMY_RINKEBY_KEY}`,
       accounts: [`${PRIVATE_KEY}`],
     },
-    mainnet_alchemy: {
-      url: `${ALCHEMY_MAINNET_URL}/${ALCHEMY_MAINNET_KEY}`,
-      accounts: [`${PRIVATE_KEY}`],
-    },
-    mainnet_infura: {
-      url: 'https://mainnet.infura.io/v3/' + INFURA_API_KEY,
-      gasPrice: 50000000000,
-      accounts: [PRIVATE_KEY || ''],
-    },
+    // mainnet: {
+    //   url: `${ALCHEMY_MAINNET_URL}/${ALCHEMY_MAINNET_KEY}`,
+    //   accounts: [`${PRIVATE_KEY}`],
+    // },
+    // mainnet_infura: {
+    //   url: 'https://mainnet.infura.io/v3/' + INFURA_API_KEY,
+    //   gasPrice: 50000000000,
+    //   accounts: [PRIVATE_KEY || ''],
+    // },
   },
   solidity: {
     compilers: [
@@ -166,6 +165,12 @@ const config: HardhatUserConfig = {
     cache: './cache',
     tests: './test',
   },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: false,
+},
 };
 
 export default config;
