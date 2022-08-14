@@ -40,8 +40,8 @@ async function deploy() {
   const tileContentProvider = await tileContentProviderFactory.connect(signer).deploy();
 
   contract = await Factory.connect(signer).deploy(
-    'On-chain Tile',
-    'OT',
+    'Infinite Tile v2',
+    'TILES2',
     '',
     linearSupplyPriceResolver.address,
     tileContentProvider.address,

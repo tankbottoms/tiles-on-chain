@@ -1,6 +1,6 @@
-## Infinite Tiles v2 
+## Infinite Tiles v2
 
-Tiles updated to generate 
+Tiles updated to generate
 
 with inspiration from [neoplastics](https://neolastics.com/). reversed engineered the [tilesDAO](https://tiles.art/#/) minified api server at [tiles-api](https://github.com/TileDAO/tiles-api) and reimplemented the svg generation in solidity on-chain. relaunched on juicebox v2 at [tiles](https://tiles.wtf); additionally, the tiles dao juicebox treasury is accessible outside of the juicebox.money website
 
