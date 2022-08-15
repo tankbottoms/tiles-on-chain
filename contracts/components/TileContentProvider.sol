@@ -59,8 +59,6 @@ import './StringHelpers.sol';
   @notice 
  */
 contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ownable {
-  error ALREADY_ASSOCIATED();
-
   string private red = '#FE4465';
   string private black = '#222';
   string private blue = '#1A49EF';
@@ -91,14 +89,6 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
   string private httpGateway;
 
   constructor() {}
-
-  function setParent(IInfiniteTiles _parent) public override {
-    if (address(parent) != address(0)) {
-      revert ALREADY_ASSOCIATED();
-    }
-
-    parent = _parent;
-  }
 
   function tokenUri(uint256 _tokenId) external view override returns (string memory uri) {
     uri = getSvgContent(parent.addressForId(_tokenId));
@@ -434,6 +424,11 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
   ) private view returns (string memory, string memory) {
     string memory color = sectorColorsFromInt16(chars[i + 1][0], r);
     return (svgs[chars[i + 1][r + 1]], color);
+  }
+
+
+  function setParent(IInfiniteTiles _parent) external override onlyOwner {
+    parent = _parent;
   }
 
   /**
