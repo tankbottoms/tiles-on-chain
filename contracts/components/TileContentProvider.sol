@@ -49,7 +49,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 
 import '../interfaces/ITileContentProvider.sol';
-import '../interfaces/ITileNFT.sol';
+import '../interfaces/IInfiniteTiles.sol';
 import './AbstractTileNFTContent.sol';
 import './Base64.sol';
 import './Ring.sol';
@@ -87,12 +87,12 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
     [yellow, black, red]
   ];
 
-  ITileNFT private parent;
+  IInfiniteTiles private parent;
   string private httpGateway;
 
   constructor() {}
 
-  function setParent(ITileNFT _parent) public override {
+  function setParent(IInfiniteTiles _parent) public override {
     if (address(parent) != address(0)) {
       revert ALREADY_ASSOCIATED();
     }
@@ -399,7 +399,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
             image,
             '", "animation_url": "',
             httpGateway,
-            "?resolution=low&tile=",
+            "?resolution=low&tile=data:image/svg+xml;base64,",
             image,
             '" }'
           )
