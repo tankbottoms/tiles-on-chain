@@ -154,8 +154,8 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
   ) internal view returns (string memory image) {
     image = svgHeader;
 
-    for (uint8 r; r < 3; ) {
-      for (uint8 i; i < 9; ) {
+    for (uint8 r; r != 3; ) {
+      for (uint8 i; i != 9; ) {
         (string memory svg, string memory color) = generateTileSectors(addressSegments, i, r);
         if (StringHelpers.stringStartsWith(svg, '<path')) {
           image = string(
@@ -199,6 +199,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
       for (uint8 i; i < ringsCount; ) {
         Ring memory ring = rings[i];
         if (ring.layer != r) {
+          ++i;
           continue;
         }
 
@@ -263,23 +264,36 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
     uint8 ringsCount,
     Ring[] memory rings
   ) internal view returns (string memory traits) {
-    string memory circleColor = '';
-    string memory attribute_PosX = '';
-    string memory attribute_PosY = '';
-    string memory attribute_diameter10x = '';
+    string memory circleColorTraits;
+    string memory ringTraits;
 
-    for (uint8 r; r < 3; ) {
-      for (uint8 i; i < 9; ) {
+    uint16 circleCount;
+    for (uint8 r; r != 3; ) {
+      for (uint8 i; i != 9; ) {
         (string memory svg, string memory color) = generateTileSectors(addressSegments, i, r);
+
         if (StringHelpers.stringStartsWith(svg, '<circle')) {
-          circleColor = color;
+          ++circleCount;
+          circleColorTraits = string(
+            abi.encodePacked(
+              circleColorTraits,
+              (bytes(circleColorTraits).length == 0 ? '' : ', '),
+              '{ "trait_type": "Circle ',
+              Strings.toString(circleCount),
+              ' Color", "value": "',
+              color,
+              '" }'
+            )
+          );
         }
+
         ++i;
       }
 
-      for (uint8 i; i < ringsCount; ) {
+      for (uint8 i; i != ringsCount; ) {
         Ring memory ring = rings[i];
         if (ring.layer != r) {
+          ++i;
           continue;
         }
 
@@ -308,13 +322,29 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
           posY = (posI > 5 ? 2 * 100 : posI > 2 ? 100 : 0) + 50;
         }
 
-        if (i == 0) {
-          attribute_PosX = Strings.toString(posX);
-          attribute_PosY = Strings.toString(posY);
-          attribute_diameter10x = Strings.toString(diameter10x);
-        }
+        ++i; // NOTE: we want to increment this before printing traits
 
-        ++i;
+        ringTraits = string(
+          abi.encodePacked(
+            ringTraits,
+            (bytes(ringTraits).length == 0 ? '' : ', '),
+            '{ "trait_type": "Ring ',
+            Strings.toString(i),
+            ' X", "value": "',
+            Strings.toString(posX),
+            '" }, ',
+            '{ "trait_type": "Ring ',
+            Strings.toString(i),
+            ' Y", "value": "',
+            Strings.toString(posY),
+            '" }, ',
+            '{ "trait_type": "Ring ',
+            Strings.toString(i),
+            ' Diameter", "value": "',
+            Strings.toString(diameter10x),
+            '" }'
+          )
+        );
       }
       ++r;
     }
@@ -322,20 +352,14 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
     traits = string(
       abi.encodePacked(
         '[ ',
-        '{ "trait_type": "Position X", "value": "',
-        attribute_PosX,
-        '" }, ',
-        '{ "trait_type": "Position Y", "value": "',
-        attribute_PosY,
-        '" }, ',
-        '{ "trait_type": "Diameter10x", "value": "',
-        attribute_diameter10x,
-        '" }, ',
-        '{ "trait_type": "Circle color", "value": "',
-        circleColor,
-        '" }, { "trait_type": "Rings count", "value": "',
+        ringTraits,
+        (bytes(ringTraits).length == 0 ? '' : ', '),
+        '{ "trait_type": "Ring Count", "value": "',
         Strings.toString(uint256(uint8(ringsCount))),
-        '" }, ]'
+        '" }',
+        (bytes(circleColorTraits).length == 0 ? '' : ', '),
+        circleColorTraits,
+        ' ]'
       )
     );
   }
