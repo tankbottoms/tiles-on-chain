@@ -11,7 +11,7 @@ enum PriceFunction {
   EXP,
 }
 
-describe('TileNFT mint tests', () => {
+describe('InfiniteTiles mint tests', () => {
   const basePrice = ethers.utils.parseEther('0.0001');
   const priceCap = ethers.utils.parseEther('128');
   const multiplier = 2;

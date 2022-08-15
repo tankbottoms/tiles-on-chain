@@ -7,7 +7,7 @@ import jbETHPaymentTerminal from '@jbx-protocol/contracts-v2/deployments/mainnet
 
 import * as MerkleHelper from '../components/MerkleHelper';
 
-describe('TileNFT Merkle-tree mint tests', function () {
+describe('InfiniteTiles Merkle-tree mint tests', function () {
   const listedPrice = ethers.utils.parseEther('0.0001');
   const unlistedPrice = ethers.utils.parseEther('0.001');
   const listedAccountOffset = 3;
