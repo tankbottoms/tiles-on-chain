@@ -113,7 +113,6 @@ describe('InfiniteTiles metadata tests', () => {
 
         expect(Number(ringCount)).to.equal(0);
         expect(circleCount).to.equal(0);
-        console.log(JSON.stringify(json))
     });
 
     it('tokenUri for non-existent token', async () => {
