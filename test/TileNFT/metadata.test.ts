@@ -101,8 +101,8 @@ describe('TileNFT metadata tests', () => {
 
         expect(circleCount).to.equal(5);
     });
-    
-    it('Mint tile without rings', async () => {
+
+    it('Mint tile without rings or circles', async () => {
         await tileNFT.connect(accounts[0]).grab('0x0000888888888888888888888888888888888888', { value: basePrice });
         const expectedTokenId = 3;
 
@@ -111,7 +111,25 @@ describe('TileNFT metadata tests', () => {
         const ringCount = json['attributes'].filter((a: any) => a['trait_type'] === 'Ring Count')[0]['value'];
         const circleCount = json['attributes'].filter((a: any) => String(a['trait_type']).startsWith('Circle')).length;
 
-        expect(circleCount).to.equal(0);
         expect(ringCount).to.equal(0);
+        expect(circleCount).to.equal(0);
+    });
+
+    it('tokenUri for non-existent token', async () => {
+        const metadata = await tileNFT.tokenURI(99999);
+        expect(metadata.length).to.equal(0);
+    });
+
+    it('Mint sample tiles', async () => {
+        const samples = ['0x53fFc341D2469e394ce0cBa08D8216b743B7eD66'];
+
+        for await (const sample of samples) {
+            const tx = await tileNFT.connect(accounts[0]).grab(sample, { value: basePrice });
+            const receipt = await tx.wait();
+            const tokenId = receipt.events?.filter((f: any) => f.event === 'Transfer')[0]['args']['id'].toString();
+            const metadata = await tileNFT.tokenURI(tokenId);
+
+            console.log(`${tokenId} -> ${metadata}`);
+        }
     });
 });
