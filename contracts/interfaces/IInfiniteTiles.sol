@@ -54,7 +54,7 @@ import './ITileContentProvider.sol';
 /**
   @notice Tiles on chain interface definition.
  */
-interface ITileNFT {
+interface IInfiniteTiles {
   function idForAddress(address) external view returns (uint256);
 
   function addressForId(uint256) external view returns (address);
