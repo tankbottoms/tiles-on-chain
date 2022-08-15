@@ -268,6 +268,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
     string memory ringTraits;
 
     uint16 circleCount;
+    uint16 ringCount;
     for (uint8 r; r != 3; ) {
       for (uint8 i; i != 9; ) {
         (string memory svg, string memory color) = generateTileSectors(addressSegments, i, r);
@@ -322,29 +323,31 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
           posY = (posI > 5 ? 2 * 100 : posI > 2 ? 100 : 0) + 50;
         }
 
-        ++i; // NOTE: we want to increment this before printing traits
+        ++ringCount;
 
         ringTraits = string(
           abi.encodePacked(
             ringTraits,
             (bytes(ringTraits).length == 0 ? '' : ', '),
             '{ "trait_type": "Ring ',
-            Strings.toString(i),
+            Strings.toString(ringCount),
             ' X", "value": "',
             Strings.toString(posX),
             '" }, ',
             '{ "trait_type": "Ring ',
-            Strings.toString(i),
+            Strings.toString(ringCount),
             ' Y", "value": "',
             Strings.toString(posY),
             '" }, ',
             '{ "trait_type": "Ring ',
-            Strings.toString(i),
+            Strings.toString(ringCount),
             ' Diameter", "value": "',
             Strings.toString(diameter10x),
             '" }'
           )
         );
+
+        ++i;
       }
       ++r;
     }
