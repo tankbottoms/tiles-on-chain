@@ -53,13 +53,13 @@ const logger = winston.createLogger({
 
 async function main() {
     if (!Object.keys(config).includes(hre.network.name)) {
-        console.log(`network ${hre.network.name} not present in config set.`)
+        console.log(`Network ${hre.network.name} not present in config set.`)
     }
 
     const activeConfig: ConfigurationGroup = config[hre.network.name];
     const [deployer] = await ethers.getSigners();
 
-    logger.info(`deploying tiles on ${hre.network.name} as ${deployer.address}`);
+    logger.info(`Deploying tiles on ${hre.network.name} as ${deployer.address}`);
 
     let stringHelpersLibraryAddress = activeConfig.stringHelpersLibrary;
     if (!stringHelpersLibraryAddress || stringHelpersLibraryAddress.length === 0) {
