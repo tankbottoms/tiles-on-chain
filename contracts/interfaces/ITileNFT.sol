@@ -42,7 +42,7 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                               
+     Infinite Tiles v2 - a Juicebox project                                                                                               
 */
 
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjectPayer.sol';

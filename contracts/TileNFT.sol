@@ -42,7 +42,7 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                               
+     Infinite Tiles v2 - a Juicebox project                                                                                               
 */
 
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBDirectory.sol';
@@ -132,7 +132,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
 
   function tokenURI(uint256 tokenId) public view override returns (string memory uri) {
     if (_ownerOf[tokenId] == address(0)) {
-        uri = '';
+      uri = '';
     } else if (address(tokenUriResolver) != address(0)) {
       uri = tokenUriResolver.tokenUri(tokenId);
     } else {
