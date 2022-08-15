@@ -155,9 +155,9 @@ async function main() {
 
     let tokenAddress = activeConfig.token;
     if (!tokenAddress || tokenAddress.length === 0) {
-        logger.debug(`deploying TileNFT with params: ${activeConfig.name}, ${activeConfig.symbol}, '', ${priceResolverAddress}, ${tileContentProviderAddress}, ${activeConfig.jbxDirectory}, ${activeConfig.projectId}, ${activeConfig.openSeaMetadata}`);
+        logger.debug(`deploying InfiniteTiles with params: ${activeConfig.name}, ${activeConfig.symbol}, '', ${priceResolverAddress}, ${tileContentProviderAddress}, ${activeConfig.jbxDirectory}, ${activeConfig.projectId}, ${activeConfig.openSeaMetadata}`);
 
-        const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
         const tileNFT = await tileNFTFactory
             .connect(deployer)
             .deploy(
@@ -173,24 +173,26 @@ async function main() {
 
         await tileNFT.deployed();
 
-        logger.info(`deployed new TileNFT contract to ${tileNFT.address} in ${tileNFT.deployTransaction.hash}`);
+        logger.info(`deployed new InfiniteTiles contract to ${tileNFT.address} in ${tileNFT.deployTransaction.hash}`);
         tokenAddress = tileNFT.address;
 
         config[hre.network.name].token = tileNFT.address;
         fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
     } else {
-        logger.info(`TileNFT contract reported at ${tokenAddress}`);
+        logger.info(`InfiniteTiles contract reported at ${tokenAddress}`);
 
-        const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
         const tileNFT = await tileNFTFactory.attach(tokenAddress);
         if (newProvider) {
             logger.info(`updating TileContentProvider to ${tileContentProviderAddress}`);
-            await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
+            const tx = await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
+            await tx.wait();
         }
 
         if (newPricer) {
             logger.info(`updating PriceResolver to ${priceResolverAddress}`);
-            await tileNFT.connect(deployer).setPriceResolver(priceResolverAddress);
+            const tx = await tileNFT.connect(deployer).setPriceResolver(priceResolverAddress);
+            await tx.wait();
         }
     }
 
@@ -202,9 +204,40 @@ async function main() {
         const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
         const tx = await tileContentProvider.connect(deployer).setParent(tokenAddress);
         await tx.wait();
-        logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`)
+        logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`);
     } catch (err) {
         logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
+    }
+
+    try {
+        const httpGateway = 'https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/';
+        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
+            libraries: { StringHelpers: stringHelpersLibraryAddress },
+            signer: deployer,
+        });
+        const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
+        const tx = await tileContentProvider.connect(deployer).setHttpGateway(httpGateway);
+        await tx.wait();
+        logger.info(`set http gateway on TileContentProvider at ${tileContentProviderAddress} to ${httpGateway}`);
+    } catch (err) {
+        logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
+    }
+
+    try {
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+        const token = await tileNFTFactory.attach(tokenAddress);
+        const minters = [
+            '0x63a2368f4b509438ca90186cb1c15156713d5834',
+            '0x823b92d6a4b2aed4b15675c7917c9f922ea8adad'
+        ];
+
+        for await (const minter of minters) {
+            const tx = await token.connect(deployer).registerMinter(minter);
+            await tx.wait();
+            logger.info(`added minter ${minter} to ${token}`);
+        }
+    } catch (err) {
+        logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
     }
 
     try {
