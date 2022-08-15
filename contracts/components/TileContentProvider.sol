@@ -42,7 +42,7 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                               
+      Infinite Tiles v2 - a Juicebox project                                                               
 */
 
 import '@openzeppelin/contracts/access/Ownable.sol';
@@ -66,7 +66,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
   string private blue = '#1A49EF';
   string private yellow = '#F8D938';
   string private description =
-    'Humans are characterized by a desire to form communities around ideas, symbols, and artifacts that satisfy our overlapping interpretations of beauty. Tiles are a celebration of what gives meaning to those communities: the individual.  There is one Tile generated for every possible ETH wallet address, each representing a unique identity in the decentralized ecosystem that makes projects like this possible.  Mathematically, all Tiles are equally rare. They are all fashioned from the same assortment of simple shapes and colors, but each in a unique way. In that sense, Tiles are a bit like us.  Owning a Tile is an invitation to participate in the TileDAO, which receives all revenue from the Tiles primary sale.  Because the supply is virtually infinite, funding for the DAO may continue indefinitely, as long as Tiles are sold. @peripheralist';
+    'Humans are characterized by a desire to form communities around ideas, symbols, and artifacts that satisfy our overlapping interpretations of beauty. Tiles are a celebration of what gives meaning to those communities: the individual.  There is one Tile generated for every possible ETH wallet address, each representing a unique identity in the decentralized ecosystem that makes projects like this possible.  Mathematically, all Tiles are equally rare. They are all fashioned from the same assortment of simple shapes and colors, but each in a unique way. In that sense, Tiles are a bit like us.  Owning a Tile is an invitation to participate in the TileDAO, which receives all revenue from the Tiles primary sale.  Because the supply is virtually infinite, funding for the DAO may continue indefinitely, as long as Tiles are sold. @peri.eth';
 
   string[][] private sectorColorVariants = [
     [red, yellow, black],
@@ -123,10 +123,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
       ++i;
     }
 
-    uint160[2] memory indexes = [
-      (uint160(_tile) >> 152) % 256,
-      (uint160(_tile) >> 144) % 256
-    ];
+    uint160[2] memory indexes = [(uint160(_tile) >> 152) % 256, (uint160(_tile) >> 144) % 256];
 
     rings = new Ring[](2);
     for (uint256 i; i != 2; ) {
@@ -333,17 +330,17 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
             (bytes(ringTraits).length == 0 ? '' : ', '),
             '{ "trait_type": "Ring ',
             Strings.toString(ringCount),
-            ' X", "value": "',
+            ' x", "value": "',
             Strings.toString(posX),
             '" }, ',
             '{ "trait_type": "Ring ',
             Strings.toString(ringCount),
-            ' Y", "value": "',
+            ' y", "value": "',
             Strings.toString(posY),
             '" }, ',
             '{ "trait_type": "Ring ',
             Strings.toString(ringCount),
-            ' Diameter", "value": "',
+            ' diameter", "value": "',
             Strings.toString(diameter10x),
             '" }'
           )
@@ -359,7 +356,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
         '[ ',
         ringTraits,
         (bytes(ringTraits).length == 0 ? '' : ', '),
-        '{ "trait_type": "Ring Count", "value": "',
+        '{ "trait_type": "Ring count", "value": "',
         Strings.toString(uint256(uint8(ringsCount))),
         '" }',
         (bytes(circleColorTraits).length == 0 ? '' : ', '),
