@@ -241,6 +241,18 @@ async function main() {
     }
 
     try {
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+        const token = await tileNFTFactory.attach(tokenAddress);
+
+        const tx = await token.connect(deployer).setRoyalties('tokenAddress', 500);
+        await tx.wait();
+        logger.info(`set royalties to ${500/10_000}`);
+        
+    } catch (err) {
+        logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
+    }
+
+    try {
         sleep(30_000);
         await hre.run('verify:verify', {
             address: tokenAddress,
