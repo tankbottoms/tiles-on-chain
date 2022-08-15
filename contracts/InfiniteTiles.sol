@@ -168,9 +168,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert UNSUPPORTED_OPERATION();
     }
 
-    if (
-      msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply()))
-    ) {
+    if (msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply()))) {
       revert INCORRECT_PRICE();
     }
 
@@ -179,21 +177,12 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     mintedTokenId = _mint(msg.sender, msg.sender);
   }
 
-  function grab(address tile)
-    external
-    payable
-    override
-    nonReentrant
-    returns (uint256 mintedTokenId)
-  {
+  function grab(address tile) external payable override nonReentrant returns (uint256 mintedTokenId) {
     if (address(priceResolver) == address(0)) {
       revert UNSUPPORTED_OPERATION();
     }
 
-    if (
-      msg.value !=
-      priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), tile))
-    ) {
+    if (msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), tile))) {
       revert INCORRECT_PRICE();
     }
 
@@ -238,10 +227,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert UNSUPPORTED_OPERATION();
     }
 
-    if (
-      msg.value !=
-      priceResolver.getPriceWithParams(msg.sender, tokenId, abi.encodePacked(totalSupply()))
-    ) {
+    if (msg.value != priceResolver.getPriceWithParams(msg.sender, tokenId, abi.encodePacked(totalSupply()))) {
       revert INCORRECT_PRICE();
     }
 
@@ -284,17 +270,13 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
    * @param _tokenId Token id.
    * @param _salePrice NFT sale price to derive royalty amount from.
    */
-  function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
-    external
-    view
-    returns (address receiver, uint256 royaltyAmount)
-  {
+  function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address receiver, uint256 royaltyAmount) {
     if (_salePrice == 0 || _ownerOf[_tokenId] == address(0)) {
-        receiver = address(0);
-        royaltyAmount = 0;
+      receiver = address(0);
+      royaltyAmount = 0;
     } else {
-        receiver = royaltyReceiver == address(0) ? address(this) : royaltyReceiver;
-        royaltyAmount = (_salePrice * royaltyRate) / 10_000;
+      receiver = royaltyReceiver == address(0) ? address(this) : royaltyReceiver;
+      royaltyAmount = (_salePrice * royaltyRate) / 10_000;
     }
   }
 
@@ -305,14 +287,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   /**
     @notice Allows direct mint by priviledged accounts bypassing price checks.
     */
-  function superMint(address _account, address _tile)
-    external
-    payable
-    override
-    nonReentrant
-    onlyMinter(msg.sender)
-    returns (uint256 mintedTokenId)
-  {
+  function superMint(address _account, address _tile) external payable override nonReentrant onlyMinter(msg.sender) returns (uint256 mintedTokenId) {
     mintedTokenId = _mint(_account, _tile);
   }
 
@@ -345,8 +320,8 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   }
 
   /**
-    @notice Allows owner to tranfer ether balance.
-    */
+   * @notice Allows owner to tranfer ether balance.
+   */
   function transferBalance(address payable account, uint256 amount) external override onlyOwner {
     if (account == address(0)) {
       revert INVALID_ADDRESS();
@@ -359,6 +334,9 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     account.transfer(amount);
   }
 
+  /**
+   * @notice Allows owner to transfer ERC20 balances.
+   */
   function transferTokenBalance(
     IERC20 token,
     address to,

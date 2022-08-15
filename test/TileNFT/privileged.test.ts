@@ -189,11 +189,20 @@ describe('InfiniteTiles privileged operations tests', () => {
 
         await expect(tileNFT.connect(deployer).setRoyalties(tileNFT.address, 500))
             .to.not.be.reverted;
+
+        await expect(tileNFT.connect(deployer).setRoyalties(tileNFT.address, 500))
+            .to.not.be.reverted;
     });
 
     it('Should get royaltyInfo', async () => {
-        const royaltyInfo = await tileNFT.royaltyInfo(1, 10_000);
+        let royaltyInfo = await tileNFT.royaltyInfo(1, 10_000);
         expect(royaltyInfo['receiver']).to.equal(tileNFT.address);
         expect(royaltyInfo['royaltyAmount'].toString()).to.equal('500');
+
+        royaltyInfo = await tileNFT.royaltyInfo(99999, 10_000);
     });
+
+    it('Should set tokenUriResolver address', async () => {
+        await tileNFT.connect(deployer).setTokenUriResolver(ethers.constants.AddressZero);
+    });    
 });
