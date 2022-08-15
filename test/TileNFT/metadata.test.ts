@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { deployMockContract } from '@ethereum-waffle/mock-contract';
 
-import jbDirectory from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
-import jbETHPaymentTerminal from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
+import jbDirectory from '@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
+import jbETHPaymentTerminal from '@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 enum PriceFunction {
@@ -11,7 +11,7 @@ enum PriceFunction {
     EXP,
 }
 
-describe('TileNFT metadata tests', () => {
+describe('InfiniteTiles metadata tests', () => {
     let tileNFT: any;
     let deployer: SignerWithAddress;
     let accounts: SignerWithAddress[];
@@ -54,7 +54,7 @@ describe('TileNFT metadata tests', () => {
 
         const tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
 
-        const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
         tileNFT = await tileNFTFactory
             .connect(deployer)
             .deploy(
@@ -129,7 +129,7 @@ describe('TileNFT metadata tests', () => {
             const tokenId = receipt.events?.filter((f: any) => f.event === 'Transfer')[0]['args']['id'].toString();
             const metadata = await tileNFT.tokenURI(tokenId);
 
-            console.log(`${tokenId} -> ${metadata}`);
+            // console.log(`${tokenId} -> ${metadata}`);
         }
     });
 });

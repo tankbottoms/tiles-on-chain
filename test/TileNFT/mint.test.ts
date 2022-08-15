@@ -3,15 +3,15 @@ import fs from 'fs';
 import { ethers } from 'hardhat';
 import { deployMockContract } from '@ethereum-waffle/mock-contract';
 
-import jbDirectory from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
-import jbETHPaymentTerminal from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
+import jbDirectory from '@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
+import jbETHPaymentTerminal from '@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
 
 enum PriceFunction {
   LINEAR,
   EXP,
 }
 
-describe('TileNFT mint tests', function () {
+describe('TileNFT mint tests', () => {
   const basePrice = ethers.utils.parseEther('0.0001');
   const priceCap = ethers.utils.parseEther('128');
   const multiplier = 2;
@@ -52,7 +52,7 @@ describe('TileNFT mint tests', function () {
 
     const tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
 
-    const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+    const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
     const tileNFT = await tileNFTFactory
       .connect(deployer)
       .deploy(

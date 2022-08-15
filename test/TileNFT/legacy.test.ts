@@ -2,16 +2,16 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { deployMockContract } from '@ethereum-waffle/mock-contract';
 
-import iOriginalTileNFT from '../../artifacts/contracts/interfaces/IOriginalTileNFT.sol/IOriginalTileNFT.json';
-import jbDirectory from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
-import jbETHPaymentTerminal from '../../node_modules/@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
+import iOriginalTileNFT from '../../artifacts/contracts/interfaces/IOriginalInfiniteTiles.sol/IOriginalInfiniteTiles.json';
+import jbDirectory from '@jbx-protocol/contracts-v2/deployments/mainnet/jbDirectory.json';
+import jbETHPaymentTerminal from '@jbx-protocol/contracts-v2/deployments/mainnet/jbETHPaymentTerminal.json';
 
 enum PriceFunction {
   LINEAR,
   EXP,
 }
 
-describe('TileNFT legacy mint tests', function () {
+describe('InfiniteTiles legacy mint tests', () => {
   const basePrice = ethers.utils.parseEther('0.0001');
   const priceCap = ethers.utils.parseEther('128');
   const multiplier = 2;
@@ -62,7 +62,7 @@ describe('TileNFT legacy mint tests', function () {
 
     const tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
 
-    const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+    const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
     const tileNFT = await tileNFTFactory
       .connect(deployer)
       .deploy(
@@ -84,7 +84,7 @@ describe('TileNFT legacy mint tests', function () {
     };
   }
 
-  it('Should mint for legacy owner address at 0 cost', async function () {
+  it('Should mint for legacy owner address at 0 cost', async () => {
     const { tileNFT, accounts } = await setup();
 
     let expectedTokenId = 1;
