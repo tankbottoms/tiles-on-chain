@@ -356,7 +356,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
         '[ ',
         ringTraits,
         (bytes(ringTraits).length == 0 ? '' : ', '),
-        '{ "trait_type": "Ring count", "value": "',
+        '{ "trait_type": "Ring Count", "value": "',
         Strings.toString(uint256(uint8(ringsCount))),
         '" }',
         (bytes(circleColorTraits).length == 0 ? '' : ', '),

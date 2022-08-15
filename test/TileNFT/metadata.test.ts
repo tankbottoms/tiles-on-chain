@@ -103,16 +103,17 @@ describe('InfiniteTiles metadata tests', () => {
     });
 
     it('Mint tile without rings or circles', async () => {
-        await tileNFT.connect(accounts[0]).grab('0x0000888888888888888888888888888888888888', { value: basePrice });
-        const expectedTokenId = 3;
+        await tileNFT.connect(accounts[0]).grab('0xFFFF888888888888888888888888888888888888', { value: basePrice });
+        const expectedTokenId = 4;
 
         const metadata = await tileNFT.tokenURI(expectedTokenId);
         const json = JSON.parse(Buffer.from(metadata.slice('data:application/json;base64,'.length), 'base64').toString());
         const ringCount = json['attributes'].filter((a: any) => a['trait_type'] === 'Ring Count')[0]['value'];
         const circleCount = json['attributes'].filter((a: any) => String(a['trait_type']).startsWith('Circle')).length;
 
-        expect(ringCount).to.equal(0);
+        expect(Number(ringCount)).to.equal(0);
         expect(circleCount).to.equal(0);
+        console.log(JSON.stringify(json))
     });
 
     it('tokenUri for non-existent token', async () => {
