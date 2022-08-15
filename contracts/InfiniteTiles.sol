@@ -281,16 +281,21 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   /**
    * @notice EIP2981 implementation for royalty distribution.
    *
-   * _tokenId Token id param is ignored
+   * @param _tokenId Token id.
    * @param _salePrice NFT sale price to derive royalty amount from.
    */
-  function royaltyInfo(uint256, uint256 _salePrice)
+  function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
     external
     view
     returns (address receiver, uint256 royaltyAmount)
   {
-    receiver = royaltyReceiver == address(0) ? address(this) : royaltyReceiver;
-    royaltyAmount = (_salePrice * royaltyRate) / 10_000;
+    if (_salePrice == 0 || _ownerOf[_tokenId] == address(0)) {
+        receiver = address(0);
+        royaltyAmount = 0;
+    } else {
+        receiver = royaltyReceiver == address(0) ? address(this) : royaltyReceiver;
+        royaltyAmount = (_salePrice * royaltyRate) / 10_000;
+    }
   }
 
   //*********************************************************************//
