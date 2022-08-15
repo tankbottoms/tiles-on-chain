@@ -130,7 +130,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
 
     rings = new Ring[](2);
     for (uint256 i; i != 2; ) {
-      if (indexes[i] == 0) {
+      if (indexes[i] == 255) {
         ++i;
         continue;
       }
