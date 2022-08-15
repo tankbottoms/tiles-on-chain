@@ -220,7 +220,7 @@ async function main() {
         await tx.wait();
         logger.info(`set http gateway on TileContentProvider at ${tileContentProviderAddress} to ${httpGateway}`);
     } catch (err) {
-        logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
+        logger.error(`could not set http gateway on ${tileContentProviderAddress} due to ${err}`);
     }
 
     try {
@@ -234,7 +234,7 @@ async function main() {
         for await (const minter of minters) {
             const tx = await token.connect(deployer).registerMinter(minter);
             await tx.wait();
-            logger.info(`added minter ${minter} to ${token}`);
+            logger.info(`added minter ${minter} to ${tokenAddress}`);
         }
     } catch (err) {
         logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
@@ -244,12 +244,29 @@ async function main() {
         const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
         const token = await tileNFTFactory.attach(tokenAddress);
 
-        const tx = await token.connect(deployer).setRoyalties('tokenAddress', 500);
+        const tx = await token.connect(deployer).setRoyalties(tokenAddress, 500);
         await tx.wait();
         logger.info(`set royalties to ${500/10_000}`);
         
     } catch (err) {
-        logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
+        logger.error(`could set royalties on ${tokenAddress} due to ${err}`);
+    }
+
+    const mints = [
+        { owner: `${deployer.address}`, tile: `${deployer.address}` }
+    ];
+
+    for await (const mint of mints) {
+        try {
+            const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+            const token = await tileNFTFactory.attach(tokenAddress);
+
+            const tx = await token.connect(deployer).superMint(mint.owner, mint.tile);
+            await tx.wait();
+            logger.info(`minted ${mint.tile} to ${mint.owner}`);
+        } catch (err) {
+            logger.error(`failed to mint ${mint.tile} to ${mint.owner} due to ${err}`);
+        }
     }
 
     try {
