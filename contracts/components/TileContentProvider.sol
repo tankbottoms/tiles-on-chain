@@ -45,6 +45,7 @@ pragma solidity ^0.8.6;
       Infinite Tiles v2.0.0                                                               
 */
 
+import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 
 import '../interfaces/ITileContentProvider.sol';
@@ -57,7 +58,7 @@ import './StringHelpers.sol';
 /**
   @notice 
  */
-contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
+contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ownable {
   error ALREADY_ASSOCIATED();
 
   string private red = '#FE4465';
@@ -87,6 +88,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
   ];
 
   ITileNFT private parent;
+  string private httpGateway;
 
   constructor() {}
 
@@ -122,8 +124,8 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
     }
 
     uint160[2] memory indexes = [
-      (uint160(_tile) / (16**38)) % 16**2,
-      (uint160(_tile) / (16**36)) % 16**2
+      (uint160(_tile) >> 152) % 256,
+      (uint160(_tile) >> 144) % 256
     ];
 
     rings = new Ring[](2);
@@ -395,6 +397,10 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
             image,
             '", "image_data": "data:image/svg+xml;base64,',
             image,
+            '", "animation_url": "',
+            httpGateway,
+            "?resolution=low&tile=",
+            image,
             '" }'
           )
         )
@@ -431,5 +437,12 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider {
   ) private view returns (string memory, string memory) {
     string memory color = sectorColorsFromInt16(chars[i + 1][0], r);
     return (svgs[chars[i + 1][r + 1]], color);
+  }
+
+  /**
+   * @notice Set rendering url for animation_url attribute. This should include the http IPFS gateway and the CID of the deployed renderer.
+   */
+  function setHttpGateway(string memory _httpGateway) external onlyOwner {
+    httpGateway = _httpGateway;
   }
 }
