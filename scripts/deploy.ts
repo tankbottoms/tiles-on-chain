@@ -78,6 +78,7 @@ async function main() {
         logger.info(`StringHelpers contract reported at ${stringHelpersLibraryAddress}`);
     }
 
+    let newProvider = false;
     let tileContentProviderAddress = activeConfig.tileContentProvider;
     if (!tileContentProviderAddress || tileContentProviderAddress.length === 0) {
         logger.info(`deploying TileContentProvider`);
@@ -94,10 +95,13 @@ async function main() {
 
         config[hre.network.name].tileContentProvider = tileContentProvider.address;
         fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+        newProvider = true;
     } else {
         logger.info(`TileContentProvider contract reported at ${tileContentProviderAddress}`);
     }
 
+    let newPricer = false;
     let priceResolverAddress = activeConfig.priceResolver;
     if (!priceResolverAddress || priceResolverAddress.length === 0) {
         if (activeConfig.priceResolverType === 'LegacyOwnershipPriceResolver') {
@@ -120,7 +124,9 @@ async function main() {
             priceResolverAddress = legacyOwnershipPriceResolver.address;
 
             config[hre.network.name].priceResolver = legacyOwnershipPriceResolver.address;
-        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+            fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+            newPricer = true;
         } else if (activeConfig.priceResolverType === 'SupplyPriceResolver') {
             logger.debug(`deploying SupplyPriceResolver with params: ${activeConfig.basePrice}, ${activeConfig.multiplier}, ${activeConfig.tierSize}, ${activeConfig.priceCap}, ${PriceFunction.LINEAR}`);
 
@@ -139,7 +145,7 @@ async function main() {
             priceResolverAddress = linearSupplyPriceResolver.address;
 
             config[hre.network.name].priceResolver = linearSupplyPriceResolver.address;
-        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+            fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
         } else if (activeConfig.priceResolverType === 'MerkleRootPriceResolver') {
             // TODO
         }
@@ -174,6 +180,31 @@ async function main() {
         fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
     } else {
         logger.info(`TileNFT contract reported at ${tokenAddress}`);
+
+        const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+        const tileNFT = await tileNFTFactory.attach(tokenAddress);
+        if (newProvider) {
+            logger.info(`updating TileContentProvider to ${tileContentProviderAddress}`);
+            await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
+        }
+
+        if (newPricer) {
+            logger.info(`updating PriceResolver to ${priceResolverAddress}`);
+            await tileNFT.connect(deployer).setPriceResolver(priceResolverAddress);
+        }
+    }
+
+    try {
+        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
+            libraries: { StringHelpers: stringHelpersLibraryAddress },
+            signer: deployer,
+        });
+        const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
+        const tx = await tileContentProvider.connect(deployer).setParent(tokenAddress);
+        await tx.wait();
+        logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`)
+    } catch (err) {
+        logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
     }
 
     try {
