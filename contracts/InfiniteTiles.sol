@@ -53,11 +53,11 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 import './interfaces/IPriceResolver.sol';
-import './interfaces/ITileNFT.sol';
+import './interfaces/IInfiniteTiles.sol';
 import './interfaces/ITileContentProvider.sol';
 import './components/ERC721Enumerable.sol';
 
-contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
+contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteTiles {
   error INCORRECT_PRICE();
   error UNSUPPORTED_OPERATION();
   error PRIVILEDGED_OPERATION();
@@ -65,6 +65,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   error INVALID_TOKEN();
   error INVALID_AMOUNT();
   error ALREADY_MINTED();
+  error INVALID_RATE();
 
   string public baseUri;
   IPriceResolver private priceResolver;
@@ -88,6 +89,13 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     @notice Maps the address used for NFT content to the token id of that object. This does not track ownership.
    */
   mapping(uint256 => address) public override addressForId;
+
+  address payable public royaltyReceiver;
+
+  /**
+   * @notice Royalty rate expressed in bps.
+   */
+  uint16 public royaltyRate;
 
   //*********************************************************************//
   // -------------------------- constructor ---------------------------- //
@@ -122,7 +130,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     _contractUri = _metadataUri;
 
     if (address(_tokenUriResolver) != address(0)) {
-      _tokenUriResolver.setParent(ITileNFT(address(this)));
+      _tokenUriResolver.setParent(IInfiniteTiles(address(this)));
     }
   }
 
@@ -132,7 +140,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
 
   function tokenURI(uint256 tokenId) public view override returns (string memory uri) {
     if (_ownerOf[tokenId] == address(0)) {
-        uri = '';
+      uri = '';
     } else if (address(tokenUriResolver) != address(0)) {
       uri = tokenUriResolver.tokenUri(tokenId);
     } else {
@@ -147,6 +155,10 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   //*********************************************************************//
   // ---------------------- external transactions ---------------------- //
   //*********************************************************************//
+
+  receive() external payable {
+    _payTreasury();
+  }
 
   /**
     @notice Allows minting by anyone at the correct price.
@@ -266,6 +278,21 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
     super.safeTransferFrom(_from, _to, _tokenId, _data);
   }
 
+  /**
+   * @notice EIP2981 implementation for royalty distribution.
+   *
+   * _tokenId Token id param is ignored
+   * @param _salePrice NFT sale price to derive royalty amount from.
+   */
+  function royaltyInfo(uint256, uint256 _salePrice)
+    external
+    view
+    returns (address receiver, uint256 royaltyAmount)
+  {
+    receiver = royaltyReceiver == address(0) ? address(this) : royaltyReceiver;
+    royaltyAmount = (_salePrice * royaltyRate) / 10_000;
+  }
+
   //*********************************************************************//
   // -------------------- priviledged transactions --------------------- //
   //*********************************************************************//
@@ -336,10 +363,27 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   }
 
   /**
-    @notice Changes the associated price resolver.
-    */
+   * @notice Changes the associated price resolver.
+   */
   function setTokenUriResolver(ITileContentProvider _tokenUriResolver) external override onlyOwner {
     tokenUriResolver = _tokenUriResolver;
+  }
+
+  /**
+   * @notice Sets royalty info
+   * @param _royaltyReceiver Payable royalties receiver, if set to address(0) royalties will be processed by the contract itself.
+   * @param _royaltyRate Rate expressed in bps, can only be set once.
+   */
+  function setRoyalties(address _royaltyReceiver, uint16 _royaltyRate) external onlyOwner {
+    royaltyReceiver = payable(_royaltyReceiver);
+
+    if (_royaltyRate > 10_000) {
+      revert INVALID_RATE();
+    }
+
+    if (royaltyRate == 0) {
+      royaltyRate = _royaltyRate;
+    }
   }
 
   //*********************************************************************//
@@ -347,6 +391,7 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   //*********************************************************************//
 
   /**
+   * @dev Attempts to forward payment to the default registered terminal for Ether.
    */
   function _payTreasury() private {
     IJBPaymentTerminal terminal = jbxDirectory.primaryTerminalOf(jbxProjectId, JBTokens.ETH);
@@ -358,11 +403,11 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   }
 
   /**
-    @notice Mints the token, returns minted token id.
-
-    @param owner Owner of the new token.
-    @param tile Address to generate the tile from.
-    */
+   * @notice Mints the token, returns minted token id.
+   *
+   * @param owner Owner of the new token.
+   * @param tile Address to generate the tile from.
+   */
   function _mint(address owner, address tile) private returns (uint256 tokenId) {
     tokenId = totalSupply() + 1;
 
@@ -379,8 +424,8 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   }
 
   /**
-    @notice 
-    */
+   * @notice Forcibly assigns a token to a specific address.
+   */
   function _reassign(
     address from,
     address to,
@@ -403,8 +448,8 @@ contract TileNFT is ERC721Enumerable, Ownable, ReentrancyGuard, ITileNFT {
   }
 
   /**
-    @notice Validate that the caller is in the minter list.
-    */
+   * @notice Validate that the caller is in the minter list.
+   */
   modifier onlyMinter(address _account) {
     if (_account != owner() && !minters[_account]) {
       revert PRIVILEDGED_OPERATION();
