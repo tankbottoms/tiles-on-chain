@@ -45,31 +45,51 @@ pragma solidity ^0.8.6;
      Infinite Tiles v2 - a Juicebox project                                               
 */
 
+import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBProjectPayer.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+
+import './IPriceResolver.sol';
+import './ITileContentProvider.sol';
+
 /**
-  @notice A price resolver interface meant for NFT contracts to calculate price based on parameters.
+  @notice Tiles on chain interface definition.
  */
-interface IPriceResolver {
-  /**
-      @notice A pricing function meant to return some default price. Should revert if not releant for a particular implementation.
-     */
-  function getPrice() external returns (uint256);
+interface IInfiniteTiles {
+  function idForAddress(address) external view returns (uint256);
 
-  /**
-      @notice A function to calculate price based on the calling address.
-     */
-  function getPriceFor(address) external returns (uint256);
+  function addressForId(uint256) external view returns (address);
 
-  /**
-      @notice A function to calculate price based on the token id being minted.
-     */
-  function getPriceOf(uint256) external returns (uint256);
+  function contractURI() external view returns (string memory);
 
-  /**
-      @notice A function to calculate price based on caller address, token id being minted and some arbitrary collection of parameters, for example Merkle tree parts.
-     */
-  function getPriceWithParams(
-    address,
+  function mint() external payable returns (uint256);
+
+  function grab(address) external payable returns (uint256);
+
+  function merkleMint(
     uint256,
+    address,
     bytes calldata
-  ) external returns (uint256);
+  ) external payable returns (uint256);
+
+  function seize() external payable returns (uint256);
+
+  function superMint(address, address) external payable returns (uint256);
+
+  function registerMinter(address) external;
+
+  function removeMinter(address) external;
+
+  function setPriceResolver(IPriceResolver) external;
+
+  function setContractUri(string calldata) external;
+
+  function transferBalance(address payable, uint256) external;
+
+  function transferTokenBalance(
+    IERC20 token,
+    address to,
+    uint256 amount
+  ) external;
+
+  function setTokenUriResolver(ITileContentProvider) external;
 }

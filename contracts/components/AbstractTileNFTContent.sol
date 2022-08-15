@@ -42,7 +42,7 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                                                          
+     Infinite Tiles v2 - a Juicebox project                                               
 */
 
 abstract contract AbstractTileNFTContent {
@@ -67,7 +67,7 @@ abstract contract AbstractTileNFTContent {
 
   string canvasColor = '#faf3e8';
 
-  string head =
+  string svgHeader =
     string(
       abi.encodePacked(
         '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" version="1.1" width="360" height="360" id="SvgjsSvg1000"><rect width="360" height="360" fill="',
@@ -76,7 +76,7 @@ abstract contract AbstractTileNFTContent {
       )
     );
 
-  string foot = '</g></g></svg>';
+  string svgFooter = '</g></g></svg>';
 
   uint16 sectorSize = 100;
 

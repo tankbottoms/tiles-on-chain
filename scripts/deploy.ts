@@ -78,6 +78,7 @@ async function main() {
         logger.info(`StringHelpers contract reported at ${stringHelpersLibraryAddress}`);
     }
 
+    let newProvider = false;
     let tileContentProviderAddress = activeConfig.tileContentProvider;
     if (!tileContentProviderAddress || tileContentProviderAddress.length === 0) {
         logger.info(`deploying TileContentProvider`);
@@ -94,10 +95,13 @@ async function main() {
 
         config[hre.network.name].tileContentProvider = tileContentProvider.address;
         fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+        newProvider = true;
     } else {
         logger.info(`TileContentProvider contract reported at ${tileContentProviderAddress}`);
     }
 
+    let newPricer = false;
     let priceResolverAddress = activeConfig.priceResolver;
     if (!priceResolverAddress || priceResolverAddress.length === 0) {
         if (activeConfig.priceResolverType === 'LegacyOwnershipPriceResolver') {
@@ -120,7 +124,9 @@ async function main() {
             priceResolverAddress = legacyOwnershipPriceResolver.address;
 
             config[hre.network.name].priceResolver = legacyOwnershipPriceResolver.address;
-        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+            fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+            newPricer = true;
         } else if (activeConfig.priceResolverType === 'SupplyPriceResolver') {
             logger.debug(`deploying SupplyPriceResolver with params: ${activeConfig.basePrice}, ${activeConfig.multiplier}, ${activeConfig.tierSize}, ${activeConfig.priceCap}, ${PriceFunction.LINEAR}`);
 
@@ -139,7 +145,7 @@ async function main() {
             priceResolverAddress = linearSupplyPriceResolver.address;
 
             config[hre.network.name].priceResolver = linearSupplyPriceResolver.address;
-        fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+            fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
         } else if (activeConfig.priceResolverType === 'MerkleRootPriceResolver') {
             // TODO
         }
@@ -149,9 +155,9 @@ async function main() {
 
     let tokenAddress = activeConfig.token;
     if (!tokenAddress || tokenAddress.length === 0) {
-        logger.debug(`deploying TileNFT with params: ${activeConfig.name}, ${activeConfig.symbol}, '', ${priceResolverAddress}, ${tileContentProviderAddress}, ${activeConfig.jbxDirectory}, ${activeConfig.projectId}, ${activeConfig.openSeaMetadata}`);
+        logger.debug(`deploying InfiniteTiles with params: ${activeConfig.name}, ${activeConfig.symbol}, '', ${priceResolverAddress}, ${tileContentProviderAddress}, ${activeConfig.jbxDirectory}, ${activeConfig.projectId}, ${activeConfig.openSeaMetadata}`);
 
-        const tileNFTFactory = await ethers.getContractFactory('TileNFT', deployer);
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
         const tileNFT = await tileNFTFactory
             .connect(deployer)
             .deploy(
@@ -167,13 +173,100 @@ async function main() {
 
         await tileNFT.deployed();
 
-        logger.info(`deployed new TileNFT contract to ${tileNFT.address} in ${tileNFT.deployTransaction.hash}`);
+        logger.info(`deployed new InfiniteTiles contract to ${tileNFT.address} in ${tileNFT.deployTransaction.hash}`);
         tokenAddress = tileNFT.address;
 
         config[hre.network.name].token = tileNFT.address;
         fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
     } else {
-        logger.info(`TileNFT contract reported at ${tokenAddress}`);
+        logger.info(`InfiniteTiles contract reported at ${tokenAddress}`);
+
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+        const tileNFT = await tileNFTFactory.attach(tokenAddress);
+        if (newProvider) {
+            logger.info(`updating TileContentProvider to ${tileContentProviderAddress}`);
+            const tx = await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
+            await tx.wait();
+        }
+
+        if (newPricer) {
+            logger.info(`updating PriceResolver to ${priceResolverAddress}`);
+            const tx = await tileNFT.connect(deployer).setPriceResolver(priceResolverAddress);
+            await tx.wait();
+        }
+    }
+
+    try {
+        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
+            libraries: { StringHelpers: stringHelpersLibraryAddress },
+            signer: deployer,
+        });
+        const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
+        const tx = await tileContentProvider.connect(deployer).setParent(tokenAddress);
+        await tx.wait();
+        logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`);
+    } catch (err) {
+        logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
+    }
+
+    try {
+        const httpGateway = 'https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/';
+        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
+            libraries: { StringHelpers: stringHelpersLibraryAddress },
+            signer: deployer,
+        });
+        const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
+        const tx = await tileContentProvider.connect(deployer).setHttpGateway(httpGateway);
+        await tx.wait();
+        logger.info(`set http gateway on TileContentProvider at ${tileContentProviderAddress} to ${httpGateway}`);
+    } catch (err) {
+        logger.error(`could not set http gateway on ${tileContentProviderAddress} due to ${err}`);
+    }
+
+    try {
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+        const token = await tileNFTFactory.attach(tokenAddress);
+        const minters = [
+            '0x63a2368f4b509438ca90186cb1c15156713d5834',
+            '0x823b92d6a4b2aed4b15675c7917c9f922ea8adad'
+        ];
+
+        for await (const minter of minters) {
+            const tx = await token.connect(deployer).registerMinter(minter);
+            await tx.wait();
+            logger.info(`added minter ${minter} to ${tokenAddress}`);
+        }
+    } catch (err) {
+        logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
+    }
+
+    try {
+        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+        const token = await tileNFTFactory.attach(tokenAddress);
+
+        const tx = await token.connect(deployer).setRoyalties(tokenAddress, 500);
+        await tx.wait();
+        logger.info(`set royalties to ${500/10_000}`);
+        
+    } catch (err) {
+        logger.error(`could set royalties on ${tokenAddress} due to ${err}`);
+    }
+
+    const mints = [
+        { owner: `${deployer.address}`, tile: `${deployer.address}` }
+    ];
+
+    for await (const mint of mints) {
+        try {
+            const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
+            const token = await tileNFTFactory.attach(tokenAddress);
+
+            const tx = await token.connect(deployer).superMint(mint.owner, mint.tile);
+            await tx.wait();
+            logger.info(`minted ${mint.tile} to ${mint.owner}`);
+        } catch (err) {
+            logger.error(`failed to mint ${mint.tile} to ${mint.owner} due to ${err}`);
+        }
     }
 
     try {

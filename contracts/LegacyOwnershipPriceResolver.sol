@@ -42,24 +42,24 @@ pragma solidity ^0.8.6;
        :=:                      :=:                      :=:                              
                                                                                           
                                                                                           
-      Infinite Tiles v2.0.0                                                                                          
+     Infinite Tiles v2 - a Juicebox project                                               
 */
 
-import './interfaces/IOriginalTileNFT.sol';
+import './interfaces/IOriginalInfiniteTiles.sol';
 import './SupplyPriceResolver.sol';
 
 /**
   @notice A price resolver based on SupplyPriceResolver which first checks the original NFT ownership.
  */
 contract LegacyOwnershipPriceResolver is SupplyPriceResolver {
-  IOriginalTileNFT private immutable legacyContract;
+  IOriginalInfiniteTiles private immutable legacyContract;
 
   /**
     @notice Creates a resolver that allows 0-cost mints for current owners of the original NFTs in the contract at 0x64931F06d3266049Bf0195346973762E6996D764.
     @param _legacyContract Original NFT address.
     */
   constructor(
-    IOriginalTileNFT _legacyContract,
+    IOriginalInfiniteTiles _legacyContract,
     uint256 _basePrice,
     uint256 _multiplier,
     uint256 _tierSize,

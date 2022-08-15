@@ -4,7 +4,7 @@ import { ethers } from 'hardhat';
 import path from 'path';
 import fs from 'fs';
 import { Contract } from 'ethers';
-import { TileNFT } from '../../typechain';
+import { InfiniteTiles } from '../../typechain';
 
 const app = express();
 
@@ -13,7 +13,7 @@ enum PriceFunction {
   EXP,
 }
 
-let contract: TileNFT;
+let contract: InfiniteTiles;
 
 async function deploy() {
   const basePrice = ethers.utils.parseEther('0.0001');
@@ -23,7 +23,7 @@ async function deploy() {
 
   console.log('deploying...');
   const signer = (await ethers.getSigners())[0];
-  const Factory = await ethers.getContractFactory('TileNFT');
+  const Factory = await ethers.getContractFactory('InfiniteTiles');
 
   const supplyPriceResolverFactory = await ethers.getContractFactory('SupplyPriceResolver', signer);
   const linearSupplyPriceResolver = await supplyPriceResolverFactory
@@ -46,6 +46,7 @@ async function deploy() {
     linearSupplyPriceResolver.address,
     tileContentProvider.address,
     ethers.constants.AddressZero,
+    99,
     'ipfs://metadata',
   );
   await contract.deployTransaction.wait(1);

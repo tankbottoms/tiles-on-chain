@@ -10,11 +10,11 @@
         "multiplier": 2,
         "tierSize": 16,
         "jbxDirectory": "0x1A9b04A9617ba5C9b7EBfF9668C30F41db6fC21a",
-        "stringHelpersLibrary": "0x761ae59025436edaa6496f76A63822DF9D0AF836",
-        "tileContentProvider": "0x211bc00B9C0d69956701329705Da5281F475f996",
-        "priceResolver": "0x396d3a1bE8c298893A912eb2ad6cACaB82f360e0",
+        "stringHelpersLibrary": "0x5e0925172c6F09D02f115eb9C6cE999C4fEa1f99",
+        "tileContentProvider": "0x3519162e818A7104cdC63202a833bbd872ad06b3",
+        "priceResolver": "0x432124c3eE06A95e0Cf01A3A1a02AF19F1600a59",
         "priceResolverType": "SupplyPriceResolver",
-        "token": "0x2DC5372d0ebBDEe29E962bB7a7947A3278822300"
+        "token": "0x1E550272e60f98AF0e7d1f754719496163BBF30b"
     },
     "mainnet": {
         "name": "Infinite Tiles 2.0",
@@ -28,7 +28,7 @@
         "tierSize": 512,
         "jbxDirectory": "0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C",
         "stringHelpersLibrary": "0xa8c720adbea12435a7a2678bbeba821c7a94d48d",
-        "tileContentProvider": "0xe6c34eb2a17e16049c3ada1ae19ef02f94ba1b97",
+        "tileContentProvider": "",
         "priceResolver": "0x30ebbf18cc7286105e0d02cb06ee78684aff722c",
         "priceResolverType": "LegacyOwnershipPriceResolver",
         "token": ""
