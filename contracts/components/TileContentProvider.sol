@@ -427,8 +427,10 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
   }
 
 
-  function setParent(IInfiniteTiles _parent) external override onlyOwner {
-    parent = _parent;
+  function setParent(IInfiniteTiles _parent) external override {
+    if (address(parent) == address(0) || msg.sender == owner()) {
+        parent = _parent;
+    }
   }
 
   /**
