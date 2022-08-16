@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
+import '@openzeppelin/contracts/interfaces/IERC721Enumerable.sol';
 import {ERC721} from '@rari-capital/solmate/src/tokens/ERC721.sol';
 
 /**
@@ -25,7 +26,7 @@ abstract contract ERC721Enumerable is ERC721 {
    * @dev See {IERC165-supportsInterface}.
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-    return interfaceId == type(ERC721).interfaceId || super.supportsInterface(interfaceId);
+    return interfaceId == type(IERC721Enumerable).interfaceId || super.supportsInterface(interfaceId);
   }
 
   /**

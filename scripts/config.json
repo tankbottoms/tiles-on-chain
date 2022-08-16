@@ -1,7 +1,7 @@
 {
     "rinkeby": {
-        "name": "Infinite Tiles 2.0",
-        "symbol": "TILES2",
+        "name": "Test Tiles 2.0",
+        "symbol": "TTILES2",
         "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
         "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
         "projectId": "4471",
@@ -11,10 +11,22 @@
         "tierSize": 16,
         "jbxDirectory": "0x1A9b04A9617ba5C9b7EBfF9668C30F41db6fC21a",
         "stringHelpersLibrary": "0x5e0925172c6F09D02f115eb9C6cE999C4fEa1f99",
-        "tileContentProvider": "0x3519162e818A7104cdC63202a833bbd872ad06b3",
+        "tileContentProvider": "0x901c822fbD665B05DA1B3Fda73c66BfC650C6013",
+        "httpGateway": "https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/",
         "priceResolver": "0x432124c3eE06A95e0Cf01A3A1a02AF19F1600a59",
         "priceResolverType": "SupplyPriceResolver",
-        "token": "0x1E550272e60f98AF0e7d1f754719496163BBF30b"
+        "token": "0x7345aA6B298DbA85bb01F5ab7963E20399F860D9",
+        "royalty": 750,
+        "manager": "0x3dC17b930D586b70AD2Bb7f09465bE455BFA8fE6",
+        "minters": [
+            "0x8a97426C1a720a45B8d69E974631f01f1168232B",
+            "0x63a2368f4b509438ca90186cb1c15156713d5834",
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad"
+        ],
+        "gift": [
+            "0x8a97426C1a720a45B8d69E974631f01f1168232B",
+            "0xC38ace8d13c4EdBc0deD20803bcbA7B3497947BD"
+        ]
     },
     "mainnet": {
         "name": "Infinite Tiles 2.0",
@@ -29,8 +41,16 @@
         "jbxDirectory": "0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C",
         "stringHelpersLibrary": "0xa8c720adbea12435a7a2678bbeba821c7a94d48d",
         "tileContentProvider": "",
+        "httpGateway": "https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/",
         "priceResolver": "0x30ebbf18cc7286105e0d02cb06ee78684aff722c",
         "priceResolverType": "LegacyOwnershipPriceResolver",
-        "token": ""
+        "token": "",
+        "royalty": 500,
+        "manager": "",
+        "minters": [
+            "0x63a2368f4b509438ca90186cb1c15156713d5834",
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad"
+        ],
+        "gift": []
     }
 }

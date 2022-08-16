@@ -21,9 +21,14 @@ type ConfigurationGroup = {
     jbxDirectory: string;
     stringHelpersLibrary: string,
     tileContentProvider: string,
+    httpGateway: string,
     priceResolver: string,
     priceResolverType: 'SupplyPriceResolver' | 'LegacyOwnershipPriceResolver' | 'MerkleRootPriceResolver',
-    token: string
+    token: string,
+    royalty: number,
+    manager: string,
+    minters: string[],
+    gift: string[]
 }
 
 function sleep(ms = 1_000) {
@@ -80,6 +85,7 @@ async function main() {
 
     let newProvider = false;
     let tileContentProviderAddress = activeConfig.tileContentProvider;
+    let tileContentProvider: any;
     if (!tileContentProviderAddress || tileContentProviderAddress.length === 0) {
         logger.info(`deploying TileContentProvider`);
 
@@ -87,7 +93,7 @@ async function main() {
             libraries: { StringHelpers: stringHelpersLibraryAddress },
             signer: deployer,
         });
-        const tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
+        tileContentProvider = await tileContentProviderFactory.connect(deployer).deploy();
         await tileContentProvider.deployed();
 
         logger.info(`deployed new TileContentProvider contract to ${tileContentProvider.address} in ${tileContentProvider.deployTransaction.hash}`);
@@ -98,6 +104,12 @@ async function main() {
 
         newProvider = true;
     } else {
+        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
+            libraries: { StringHelpers: stringHelpersLibraryAddress },
+            signer: deployer,
+        });
+        tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
+
         logger.info(`TileContentProvider contract reported at ${tileContentProviderAddress}`);
     }
 
@@ -154,11 +166,12 @@ async function main() {
     }
 
     let tokenAddress = activeConfig.token;
+    let tileNFT;
     if (!tokenAddress || tokenAddress.length === 0) {
         logger.debug(`deploying InfiniteTiles with params: ${activeConfig.name}, ${activeConfig.symbol}, '', ${priceResolverAddress}, ${tileContentProviderAddress}, ${activeConfig.jbxDirectory}, ${activeConfig.projectId}, ${activeConfig.openSeaMetadata}`);
 
         const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
-        const tileNFT = await tileNFTFactory
+        tileNFT = await tileNFTFactory
             .connect(deployer)
             .deploy(
                 activeConfig.name,
@@ -182,7 +195,7 @@ async function main() {
         logger.info(`InfiniteTiles contract reported at ${tokenAddress}`);
 
         const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
-        const tileNFT = await tileNFTFactory.attach(tokenAddress);
+        tileNFT = await tileNFTFactory.attach(tokenAddress);
         if (newProvider) {
             logger.info(`updating TileContentProvider to ${tileContentProviderAddress}`);
             const tx = await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
@@ -197,11 +210,6 @@ async function main() {
     }
 
     try {
-        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
-            libraries: { StringHelpers: stringHelpersLibraryAddress },
-            signer: deployer,
-        });
-        const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
         const tx = await tileContentProvider.connect(deployer).setParent(tokenAddress);
         await tx.wait();
         logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`);
@@ -210,62 +218,60 @@ async function main() {
     }
 
     try {
-        const httpGateway = 'https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/';
-        const tileContentProviderFactory = await ethers.getContractFactory('TileContentProvider', {
-            libraries: { StringHelpers: stringHelpersLibraryAddress },
-            signer: deployer,
-        });
-        const tileContentProvider = await tileContentProviderFactory.attach(tileContentProviderAddress);
-        const tx = await tileContentProvider.connect(deployer).setHttpGateway(httpGateway);
+        const tx = await tileContentProvider.connect(deployer).setHttpGateway(activeConfig.httpGateway);
         await tx.wait();
-        logger.info(`set http gateway on TileContentProvider at ${tileContentProviderAddress} to ${httpGateway}`);
+        logger.info(`set http gateway on TileContentProvider at ${tileContentProviderAddress} to ${activeConfig.httpGateway}`);
     } catch (err) {
         logger.error(`could not set http gateway on ${tileContentProviderAddress} due to ${err}`);
     }
 
-    try {
-        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
-        const token = await tileNFTFactory.attach(tokenAddress);
-        const minters = [
-            '0x63a2368f4b509438ca90186cb1c15156713d5834',
-            '0x823b92d6a4b2aed4b15675c7917c9f922ea8adad'
-        ];
-
-        for await (const minter of minters) {
-            const tx = await token.connect(deployer).registerMinter(minter);
+    for await (const minter of activeConfig.minters) {
+        try {
+            const tx = await tileNFT.connect(deployer).registerMinter(minter);
             await tx.wait();
             logger.info(`added minter ${minter} to ${tokenAddress}`);
+        } catch (err) {
+            logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
         }
-    } catch (err) {
-        logger.error(`could not add minter on ${tokenAddress} due to ${err}`);
     }
 
     try {
-        const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
-        const token = await tileNFTFactory.attach(tokenAddress);
-
-        const tx = await token.connect(deployer).setRoyalties(tokenAddress, 500);
+        const tx = await tileNFT.connect(deployer).setRoyalties(tokenAddress, activeConfig.royalty);
         await tx.wait();
-        logger.info(`set royalties to ${500/10_000}`);
-        
+        logger.info(`set royalties to ${activeConfig.royalty / 10_000}`);
+
     } catch (err) {
         logger.error(`could set royalties on ${tokenAddress} due to ${err}`);
     }
 
-    const mints = [
-        { owner: `${deployer.address}`, tile: `${deployer.address}` }
-    ];
-
-    for await (const mint of mints) {
+    for await (const gift of activeConfig.gift) {
         try {
             const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
             const token = await tileNFTFactory.attach(tokenAddress);
 
-            const tx = await token.connect(deployer).superMint(mint.owner, mint.tile);
+            const tx = await token.connect(deployer).superMint(gift, gift);
             await tx.wait();
-            logger.info(`minted ${mint.tile} to ${mint.owner}`);
+            logger.info(`minted ${gift} to ${gift}`);
         } catch (err) {
-            logger.error(`failed to mint ${mint.tile} to ${mint.owner} due to ${err}`);
+            logger.error(`failed to mint ${gift} to ${gift} due to ${err}`);
+        }
+    }
+
+    if (activeConfig.manager.length != 0) {
+        try {
+            let tx = await tileNFT.connect(deployer).transferOwnership(activeConfig.manager);
+            await tx.wait();
+            logger.info(`transferred ownership of InfiniteTiles at ${tokenAddress} to ${activeConfig.manager}`);
+        } catch (err) {
+            logger.error(`failed to transfer ownership of InfiniteTiles at ${tokenAddress} to ${activeConfig.manager} due to ${err}`);
+        }
+
+        try {
+            const tx = await tileContentProvider.connect(deployer).transferOwnership(activeConfig.manager);
+            await tx.wait();
+            logger.info(`transferred ownership of TileContentProvider at ${tileContentProviderAddress} to ${activeConfig.manager}`);
+        } catch (err) {
+            logger.error(`failed to transfer ownership of TileContentProvider at ${tileContentProviderAddress} to ${activeConfig.manager} due to ${err}`);
         }
     }
 
