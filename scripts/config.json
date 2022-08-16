@@ -11,10 +11,10 @@
         "tierSize": 16,
         "jbxDirectory": "0x1A9b04A9617ba5C9b7EBfF9668C30F41db6fC21a",
         "stringHelpersLibrary": "0x5e0925172c6F09D02f115eb9C6cE999C4fEa1f99",
-        "tileContentProvider": "0x3519162e818A7104cdC63202a833bbd872ad06b3",
+        "tileContentProvider": "0x0D213f9EE2A6519Df8F301875b7754d951012371",
         "priceResolver": "0x432124c3eE06A95e0Cf01A3A1a02AF19F1600a59",
         "priceResolverType": "SupplyPriceResolver",
-        "token": "0x1E550272e60f98AF0e7d1f754719496163BBF30b"
+        "token": "0x2291df55F60d0544E631d70cB9Df934Ac29fcB45"
     },
     "mainnet": {
         "name": "Infinite Tiles 2.0",
