@@ -281,6 +281,14 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     }
   }
 
+  function getMintPrice() external view returns (uint256 price) {
+    if (address(priceResolver) == address(0)) {
+      revert UNSUPPORTED_OPERATION();
+    }
+
+    price = priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), msg.sender));
+  }
+
   //*********************************************************************//
   // -------------------- priviledged transactions --------------------- //
   //*********************************************************************//
