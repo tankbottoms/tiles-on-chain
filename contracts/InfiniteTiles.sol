@@ -49,6 +49,7 @@ import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBDirectory.sol';
 import '@jbx-protocol/contracts-v2/contracts/interfaces/IJBPaymentTerminal.sol';
 import '@jbx-protocol/contracts-v2/contracts/libraries/JBTokens.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/interfaces/IERC2981.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
@@ -438,5 +439,13 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert PRIVILEDGED_OPERATION();
     }
     _;
+  }
+
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+    return interfaceId == type(IERC2981).interfaceId // 0x2a55205a
+        || super.supportsInterface(interfaceId);
   }
 }
