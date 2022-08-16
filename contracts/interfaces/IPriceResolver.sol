@@ -52,17 +52,17 @@ interface IPriceResolver {
   /**
       @notice A pricing function meant to return some default price. Should revert if not releant for a particular implementation.
      */
-  function getPrice() external returns (uint256);
+  function getPrice() external view returns (uint256);
 
   /**
       @notice A function to calculate price based on the calling address.
      */
-  function getPriceFor(address) external returns (uint256);
+  function getPriceFor(address) external view returns (uint256);
 
   /**
       @notice A function to calculate price based on the token id being minted.
      */
-  function getPriceOf(uint256) external returns (uint256);
+  function getPriceOf(uint256) external view returns (uint256);
 
   /**
       @notice A function to calculate price based on caller address, token id being minted and some arbitrary collection of parameters, for example Merkle tree parts.
@@ -71,5 +71,5 @@ interface IPriceResolver {
     address,
     uint256,
     bytes calldata
-  ) external returns (uint256);
+  ) external view returns (uint256);
 }
