@@ -21,7 +21,8 @@ type ConfigurationGroup = {
     jbxDirectory: string;
     stringHelpersLibrary: string,
     tileContentProvider: string,
-    httpGateway: string,
+    gatewayAnimationUrl: string,
+    gatewayPreviewUrl: string,
     priceResolver: string,
     priceResolverType: 'SupplyPriceResolver' | 'LegacyOwnershipPriceResolver' | 'MerkleRootPriceResolver',
     token: string,
@@ -218,9 +219,9 @@ async function main() {
     }
 
     try {
-        const tx = await tileContentProvider.connect(deployer).setHttpGateway(activeConfig.httpGateway);
+        const tx = await tileContentProvider.connect(deployer).setHttpGateways(activeConfig.gatewayAnimationUrl, activeConfig.gatewayPreviewUrl);
         await tx.wait();
-        logger.info(`set http gateway on TileContentProvider at ${tileContentProviderAddress} to ${activeConfig.httpGateway}`);
+        logger.info(`set http gateways on TileContentProvider at ${tileContentProviderAddress} to ${activeConfig.gatewayAnimationUrl}, ${activeConfig.gatewayPreviewUrl}`);
     } catch (err) {
         logger.error(`could not set http gateway on ${tileContentProviderAddress} due to ${err}`);
     }

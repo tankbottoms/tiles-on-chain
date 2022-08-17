@@ -59,6 +59,8 @@ import './StringHelpers.sol';
   @notice 
  */
 contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ownable {
+  error PRIVILEGED_OPERATION();
+
   string private red = '#FE4465';
   string private black = '#222';
   string private blue = '#1A49EF';
@@ -86,7 +88,8 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
   ];
 
   IInfiniteTiles private parent;
-  string private httpGateway;
+  string public gatewayAnimationUrl;
+  string public gatewayPreviewUrl;
 
   constructor() {}
 
@@ -155,11 +158,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
               ',',
               Strings.toString(((i % 9) / 3) * 100),
               ')">',
-              StringHelpers.replace(
-                StringHelpers.replace(svg, '#000', color),
-                '/>',
-                ' style="opacity: 0.88;" />'
-              ),
+              StringHelpers.replace(StringHelpers.replace(svg, '#000', color), '/>', ' style="opacity: 0.88;" />'),
               '</g>'
             )
           );
@@ -172,11 +171,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
               ',',
               Strings.toString(((i % 9) / 3) * 100),
               ')">',
-              StringHelpers.replace(
-                StringHelpers.replace(svg, '#000', color),
-                '/>',
-                ' style="opacity: 0.88;" />'
-              ),
+              StringHelpers.replace(StringHelpers.replace(svg, '#000', color), '/>', ' style="opacity: 0.88;" />'),
               '</g>'
             )
           );
@@ -385,7 +380,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
             '", "image_data": "data:image/svg+xml;base64,',
             image,
             '", "animation_url": "',
-            httpGateway,
+            gatewayAnimationUrl,
             '?resolution=low&tile=data:image/svg+xml;base64,',
             image,
             '" }'
@@ -396,6 +391,10 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
     string memory output = string(abi.encodePacked('data:application/json;base64,', json));
 
     return output;
+  }
+
+  function externalPreviewUrl(address _tile) public view override returns (string memory url) {
+    url = string(abi.encodePacked(gatewayPreviewUrl, Strings.toHexString(uint160(_tile), 20)));
   }
 
   function bytesToChars(address _address) private pure returns (uint16[] memory) {
@@ -429,13 +428,19 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
   function setParent(IInfiniteTiles _parent) external override {
     if (address(parent) == address(0) || msg.sender == owner()) {
       parent = _parent;
+    } else {
+        revert PRIVILEGED_OPERATION();
     }
   }
 
   /**
    * @notice Set rendering url for animation_url attribute. This should include the http IPFS gateway and the CID of the deployed renderer.
+   *
+   * @param _gatewayAnimationUrl This url is used for the animation_url parameter of the token metadata. This url must end with a slash and will get appended with base-64 encoded image content.
+   * @param _gatewayPreviewUrl This url is used in publishing of mint events to the Juicebox project. It will be appended with the tile address.
    */
-  function setHttpGateway(string memory _httpGateway) external onlyOwner {
-    httpGateway = _httpGateway;
+  function setHttpGateways(string calldata _gatewayAnimationUrl, string calldata _gatewayPreviewUrl) external onlyOwner {
+    gatewayAnimationUrl = _gatewayAnimationUrl;
+    gatewayPreviewUrl = _gatewayPreviewUrl;
   }
 }
