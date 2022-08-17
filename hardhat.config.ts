@@ -126,15 +126,11 @@ const config: HardhatUserConfig = {
       url: `${ALCHEMY_RINKEBY_URL}/${ALCHEMY_RINKEBY_KEY}`,
       accounts: [`${PRIVATE_KEY}`],
     },
-    // mainnet: {
-    //   url: `${ALCHEMY_MAINNET_URL}/${ALCHEMY_MAINNET_KEY}`,
-    //   accounts: [`${PRIVATE_KEY}`],
-    // },
-    // mainnet_infura: {
-    //   url: 'https://mainnet.infura.io/v3/' + INFURA_API_KEY,
-    //   gasPrice: 50000000000,
-    //   accounts: [PRIVATE_KEY || ''],
-    // },
+    mainnet: {
+      url: `${ALCHEMY_MAINNET_URL}/${ALCHEMY_MAINNET_KEY}`,
+      accounts: [`${PRIVATE_KEY}`],
+    },
+    
   },
   solidity: {
     compilers: [
