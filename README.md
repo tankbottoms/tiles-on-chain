@@ -69,6 +69,163 @@ Put these contracts on chain with `npx hardhat run scripts/deploy.ts --network r
 npx hardhat run scripts/deploy.ts --network rinkeby
 ```
 
+#### Mainnet deployment
+
+The `log/deploy.log` contains the relevant ouput from the deployment, as provided below for convenience.
+
+```bash
+Alchemy mainnet https://eth-mainnet.g.alchemy.com/v2/kiaHfA88GhCn8XkX9ILDmNGp2L30hLs6 set.
+No need to generate any newer typings.
+ ·--------------------------------|--------------|----------------·
+ |  Contract Name                 ·  Size (KiB)  ·  Change (KiB)  │
+ ·································|··············|·················
+ |  Base64                        ·       0.044  ·                │
+ ·································|··············|·················
+ |  IndexedTokenURIResolver       ·       1.783  ·                │
+ ·································|··············|·················
+ |  InfiniteTiles                 ·      20.911  ·                │
+ ·································|··············|·················
+ |  JBTokens                      ·       0.183  ·                │
+ ·································|··············|·················
+ |  LegacyOwnershipPriceResolver  ·       3.323  ·                │
+ ·································|··············|·················
+ |  MerkleProof                   ·       0.044  ·                │
+ ·································|··············|·················
+ |  MerkleRootPriceResolver       ·       2.915  ·                │
+ ·································|··············|·················
+ |  StringHelpers                 ·       2.772  ·                │
+ ·································|··············|·················
+ |  Strings                       ·       0.044  ·                │
+ ·································|··············|·················
+ |  SupplyPriceResolver           ·       2.500  ·                │
+ ·································|··············|·················
+ |  TileContentProvider           ·      19.213  ·                │
+ ·--------------------------------|--------------|----------------·
+Alchemy mainnet https://eth-mainnet.g.alchemy.com/v2/kiaHfA88GhCn8XkX9ILDmNGp2L30hLs6 set.
+2022-08-17T06:01:58.545Z|info|deploying tiles on mainnet as 0x8a97426C1a720a45B8d69E974631f01f1168232B
+2022-08-17T06:01:58.545Z|info|StringHelpers contract reported at 0xa8c720adbea12435a7a2678bbeba821c7a94d48d
+2022-08-17T06:01:58.545Z|info|deploying TileContentProvider
+2022-08-17T06:02:12.350Z|info|deployed new TileContentProvider contract to 0x0003fCcD5860CBC57e5181740b2D5649E5c5cb13 in 0x2560694772d253b5df42710c5655f3242da5014a2c2fb166e7b04b2b023533d9
+2022-08-17T06:02:12.352Z|info|LegacyOwnershipPriceResolver contract reported at 0x30ebbf18cc7286105e0d02cb06ee78684aff722c
+2022-08-17T06:08:37.655Z|info|deployed new InfiniteTiles contract to 0x894EaDA0D9eA2314CdB72C016d0FAA424Db0e4a0 in 0x213ab22fbe899b1a745fb434a1726847cfd60d70999817b17b83c60f1623c87b
+2022-08-17T06:08:58.914Z|info|set parent on TileContentProvider at 0x0003fCcD5860CBC57e5181740b2D5649E5c5cb13 to 0x894EaDA0D9eA2314CdB72C016d0FAA424Db0e4a0
+2022-08-17T06:09:15.998Z|info|set http gateways on TileContentProvider at 0x0003fCcD5860CBC57e5181740b2D5649E5c5cb13 to https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/, https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/
+2022-08-17T06:09:29.184Z|info|added minter 0x63a2368f4b509438ca90186cb1c15156713d5834 to 0x894EaDA0D9eA2314CdB72C016d0FAA424Db0e4a0
+2022-08-17T06:09:54.228Z|info|added minter 0x823b92d6a4b2aed4b15675c7917c9f922ea8adad to 0x894EaDA0D9eA2314CdB72C016d0FAA424Db0e4a0
+2022-08-17T06:10:11.287Z|info|set royalties to 0.05
+Nothing to compile
+No need to generate any newer typings.
+ ·--------------------------------|--------------|----------------·
+ |  Contract Name                 ·  Size (KiB)  ·  Change (KiB)  │
+ ·································|··············|·················
+ |  Base64                        ·       0.044  ·                │
+ ·································|··············|·················
+ |  IndexedTokenURIResolver       ·       1.783  ·                │
+ ·································|··············|·················
+ |  InfiniteTiles                 ·      20.911  ·                │
+ ·································|··············|·················
+ |  JBTokens                      ·       0.183  ·                │
+ ·································|··············|·················
+ |  LegacyOwnershipPriceResolver  ·       3.323  ·                │
+ ·································|··············|·················
+ |  MerkleProof                   ·       0.044  ·                │
+ ·································|··············|·················
+ |  MerkleRootPriceResolver       ·       2.915  ·                │
+ ·································|··············|·················
+ |  StringHelpers                 ·       2.772  ·                │
+ ·································|··············|·················
+ |  Strings                       ·       0.044  ·                │
+ ·································|··············|·················
+ |  SupplyPriceResolver           ·       2.500  ·                │
+ ·································|··············|·················
+ |  TileContentProvider           ·      19.213  ·                │
+ ·--------------------------------|--------------|----------------·
+2022-08-17T06:10:11.689Z|error|Could not register contract code ENOENT: no such file or directory, open '/Users/mark.phillips/Developer/tiles-on-chain/tiles-on-chain/artifacts/build-info/1226f6de64372184916b28e460032d58.json'
+```
+
+#### Configuration parameters
+
+The `script/deploy.ts` uses configuration parameters sourced from `source/config.json`,
+
+The following `Rinkeby keys` provide for other contract resources or configurations which make sense for testing purposes.
+
+```json
+{
+    "rinkeby": {
+        "name": "Test Tiles 2.0",
+        "symbol": "TESTEES2",
+        "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
+        "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
+        "projectId": "4471",
+        "basePrice": "0.0001",
+        "priceCap": "128",
+        "multiplier": 2,
+        "tierSize": 16,
+        "jbxDirectory": "0x1A9b04A9617ba5C9b7EBfF9668C30F41db6fC21a",
+        "stringHelpersLibrary": "0x5e0925172c6F09D02f115eb9C6cE999C4fEa1f99",
+        "tileContentProvider": "0x6FeCD1448dA6fA697e84AA1CC4e0737EB0be98B5",
+        "gatewayAnimationUrl": "https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/",
+        "gatewayPreviewUrl": "https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/",
+        "priceResolver": "0x432124c3eE06A95e0Cf01A3A1a02AF19F1600a59",
+        "priceResolverType": "SupplyPriceResolver",
+        "token": "0xe9595c465Bf76F72279D67d09f7425969f11bC46",
+        "royalty": 750,
+        "manager": "0x3dC17b930D586b70AD2Bb7f09465bE455BFA8fE6",
+        "minters": [
+            "0x8a97426C1a720a45B8d69E974631f01f1168232B",
+            "0x63a2368f4b509438ca90186cb1c15156713d5834",
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad"
+        ],
+        "gift": [
+            "0x8a97426C1a720a45B8d69E974631f01f1168232B",
+            "0xC38ace8d13c4EdBc0deD20803bcbA7B3497947BD"
+        ]
+    },
+    "mainnet": {
+        "name": "Infinite Tiles 2.0",
+        "symbol": "TILES2",
+        "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
+        "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
+        "projectId": "41",
+        "basePrice": "0.0001",
+        "priceCap": "128",
+        "multiplier": 2,
+        "tierSize": 512,
+        "jbxDirectory": "0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C",
+        "stringHelpersLibrary": "0xa8c720adbea12435a7a2678bbeba821c7a94d48d",
+        "tileContentProvider": "",
+        "gatewayAnimationUrl": "https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/",
+        "gatewayPreviewUrl": "https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/",
+        "priceResolver": "0x30ebbf18cc7286105e0d02cb06ee78684aff722c",
+        "priceResolverType": "LegacyOwnershipPriceResolver",
+        "token": "",
+        "royalty": 500,
+        "manager": "",
+        "minters": [
+            "0x4493287882f75dFFcdB40FD41d38d6308Fb8c181"
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad",
+            "0x5d95baEBB8412AD827287240A5c281E3bB30d27E",
+        ],
+        "gift": [
+            "0x90eda5165e5e1633e0bdb6307cdecae564b10ff7",
+            "0x63a2368f4b509438ca90186cb1c15156713d5834"',
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad"',
+            "0xe7879a2d05dba966fcca34ee9c3f99eee7edefd1"',
+            "0x1dd2091f250876ba87b6fe17e6ca925e1b1c0cf0"',
+            "0x4823e65c10daa3ef320e5e262cfa8d0a059e02a6"',
+            "0x5566b7cb1cccb3e147084cf971d6dda770a3c90f"',
+            "0x5d95baebb8412ad827287240a5c281e3bb30d27e"',
+            "0x30670d81e487c80b9edc54370e6eaf943b6eab39"',
+            "0x6860f1a0cf179ed93abd3739c7f6c8961a4eea3c",
+            "0xe41188926607921763d25392475f1156ac5f9033",
+            "0x90eda5165e5e1633e0bdb6307cdecae564b10ff7",
+            "0x28c173b8f20488eef1b0f48df8453a2f59c38337",
+            "0x2DdA8dc2f67f1eB94b250CaEFAc9De16f70c5A51",
+        ]
+    }
+}
+```
+
 ## Contract Features
 
 Tiles v2 is a collection of contracts hidden behind [InfiniteTiles.sol](./blob/main/contracts/InfiniteTiles.sol). This contract is an implementation of ERC721 based on the version from [rari capital](https://github.com/Rari-Capital). It includes several features from ERC721Enumerable from [openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts). On top of this are modules to provide pricing and content creation features.
