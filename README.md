@@ -1,4 +1,4 @@
-# Infinite Tiles v2
+# infinite tiles (tiles.wtf smart contracts)
 
 ## about
 
