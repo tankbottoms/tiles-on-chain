@@ -2,54 +2,80 @@
 
 ## About
 
-Inspired by [neoplastics](https://neolastics.com/), which will be addressed in follow on projects. Infinite tile v1 algorithm reversed engineered from [tilesDAO's](https://tiles.art/#/) minified api server at [tiles-api](https://github.com/TileDAO/tiles-api), implemented in both typescript and solidity.
+Inspired by both [Neoplastics](https://neolastics.com/) and Infinite Tiles v1 algorithm, this repo reversed-engineered the [TilesDAO's](https://tiles.art/#/) minified api-server at [Tiles-API](https://github.com/TileDAO/tiles-api) to derive the Tile generation algorithm to implement it in Solidity. Infinite Tiles generates a Tile for each Ethereum address. The repository uses Typescript and Solidity.
 
-Everything has been updated, smart contracts for infinite tiles with a content provider on-chain, pricing resolver, metadata and the frontend gallery rewritten in svelte routing to juicebox v2 at [tiles.wtf](https://tiles.wtf); additionally, the tiles dao juicebox treasury is included in the gallery, making for a full featured dao application or dapp.
+The Smart Contracts for Infinite Tiles is significantly different than other NFTs, such that a content provider on-chain, pricing resolver, metadata and the frontend gallery were all written from scratch in Svelte, including the DAO treasury is a version 2 of Juicebox.
+
+[https://Tiles.wtf](https://tiles.wtf); The Tiles minting front-end as well as an operational Juicebox Treasury together make [Tiles-wtf-gallery](https://github.com/tankbottoms/tiles-wtf-gallery) a helpful reference source for anyone interested in a full-featured decentralized application or DAPP.
 
 ## Minting
 
-There are three different minting options in the contract. `mint()`, `grab(address)` and `seize()`. The first allows the caller to mint a tile with their own address. The second allows the caller to mint a tile with an arbitraty address. The last function allows the caller to seize the tile for their address from the current owner.
+There are three different minting options in the contract.
 
-Prices depend on the current amount of tiles already minted, the price starts at 0.0001 Ether and doubles every 512 mints. These two numbers are configuration parameters. Holders of the original Tiles NFTs at [0x64931F06d3266049Bf0195346973762E6996D764](https://looksrare.org/collections/0x64931F06d3266049Bf0195346973762E6996D764) can mint their tiles on this contract for free.
+- `mint()` The first allows the caller to mint a tile with their own address;
+- `grab(address)` The second allows the caller to mint a tile with an arbitraty address; and
+- `seize()` The last function allows the caller to seize the tile for their address from the current owner.
+
+#### Pricing
+
+Prices depend on the current amount of Tiles already minted, the price starts at `0.0001 Ether` and doubles every `512 mints`. These two numbers are configuration parameters. Holders of the original Tiles NFTs at [0x64931F06d3266049Bf0195346973762E6996D764](https://looksrare.org/collections/0x64931F06d3266049Bf0195346973762E6996D764) can mint their Tiles on this contract for free.
 
 The contract itself also has a `merkleMint()` function, but that is not used in the current deployment.
 
 ### More about `seize()`
 
-This function exists to always give access to the owner of the private key to their unique tile. This functionality has some implications. If a user decides the squat tiles for addresses of well-know people, these tiles will simply be taken away from them through the seize function. There is still a price to pay for calling seize which is the current mint price. The current mint price may be higher than what the squatter paid and this amount will be sent to the current holder in exchange for the NFT.
+This function exists to always give access to the owner of the private key to their unique Tile. This functionality has some implications. If a user decides the squat tiles for addresses of well-know people, these tiles will simply be taken away from them through the seize function. There is still a price to pay for calling seize which is the current mint price. The current mint price may be higher than what the squatter paid and this amount will be sent to the current holder in exchange for the NFT.
 
-This mechanic also discourages sales of owned address tiles since they can always be seized back even if they were sold on a 3rd party market.
+This mechanic also discourages sales of owned address Tiles since they can always be seized back even if they were sold on a 3rd party market.
 
-## Developing
+## Development
 
-This is a nodejs project written in typescript. Bootstrap it with `yarn` or `npm i`. After that use the usual hardhat commands. `npx hardhat compile`, `npx hardhat test` and `npx hardhat coverage` build, test and calculate code coverage respectively. There are several scripts available as well.
+This is a Nodejs project written in Typescript. Bootstrap it with `yarn`. After that use the usual hardhat commands. `npx hardhat compile`, `npx hardhat test` and `npx hardhat coverage` build, test and calculate code coverage respectively. There are several scripts available as well.
+
+```bash
+yarn
+npx hardhat compile
+npx hardhat test
+npx hardhat coverage
+```
 
 ### Hot-reload
 
 There is a hot-reload script you can run as `source ./scripts/dev.sh` which deploys the contracts to a local testnet and spins up an http display service at [https://localhost:3000](https://localhost:3000/).
 
+```bash
+yarn
+source ./scripts/dev.sh
+```
+
 ### Deployment
 
-Deployment requires configuration which is loaded from a `.evn` file. The following keys are necessary:
+Deployment requires configuration which is loaded from a `.env` file. The following keys are necessary:
 
-- PRIVATE_KEY
-- ALCHEMY_RINKEBY_URL
-- ALCHEMY_RINKEBY_KEY
-- ALCHEMY_MAINNET_URL
-- ALCHEMY_MAINNET_KEY
-- ETHERSCAN_API_KEY
-- COINMARKETCAP_KEY
-- REPORT_GAS
+```
+- PRIVATE_KEY=
+- ALCHEMY_RINKEBY_URL=
+- ALCHEMY_RINKEBY_KEY=
+- ALCHEMY_MAINNET_URL=
+- ALCHEMY_MAINNET_KEY=
+- ETHERSCAN_API_KEY=
+- COINMARKETCAP_KEY=
+- REPORT_GAS=
+```
 
 Put these contracts on chain with `npx hardhat run scripts/deploy.ts --network rinkeby`. Most recent test deployment is at [0x7345aA6B298DbA85bb01F5ab7963E20399F860D9](https://rinkeby.etherscan.io/address/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9). You can see how it's rendered on [looksrare](https://rinkeby.looksrare.org/collections/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9/1#about).
 
+```bash
+npx hardhat run scripts/deploy.ts --network rinkeby
+```
+
 ## Contract Features
 
-Tiles v2 is a collection of contracts hidden behind [InfiniteTiles.sol](./blob/main/contracts/InfiniteTiles.sol). This contract is an implementation of ERC721 based on the version from [rari capital](https://github.com/Rari-Capital). It includes several features from ERC721Enumerable from [openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts). On top of this we've added modules to provide pricing and content creation features.
+Tiles v2 is a collection of contracts hidden behind [InfiniteTiles.sol](./blob/main/contracts/InfiniteTiles.sol). This contract is an implementation of ERC721 based on the version from [rari capital](https://github.com/Rari-Capital). It includes several features from ERC721Enumerable from [openzeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts). On top of this are modules to provide pricing and content creation features.
 
-This nft is fully on-chain. The nft content, starting with the metadata, is generated by a smart contract function. This includes the basic description, dynamic trait collection and the svg image content.
+This NFT is fully on-chain. The NFT content, starting with the metadata, is generated by a smart contract function. This includes the basic description, dynamic trait collection and the svg image content.
 
-This collection feeds into a [juicebox project](https://juicebox.money/v2/p/41) for mint payments and royalty distribution.
+This collection feeds into a [Juicebox Project](https://juicebox.money/v2/p/41) for mint payments and royalty distribution.
 
 ### Default Configuration
 
@@ -63,4 +89,10 @@ For controlling the minting process, in addition to [LegacyOwnershipPriceResolve
 
 ## Examples
 
-There are a few places where you can observe the contract on rinkeby: [looksrare](https://rinkeby.looksrare.org/collections/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9/1#about), [etherscan](https://rinkeby.etherscan.io/address/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9), [dethcode](https://rinkeby.etherscan.deth.net/address/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9). You can also preview the [animation_url](https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/?resolution=low&tile=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWxuczpzdmdqcz0iaHR0cDovL3N2Z2pzLmRldi9zdmdqcyIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iMzYwIiBoZWlnaHQ9IjM2MCIgaWQ9IlN2Z2pzU3ZnMTAwMCI+PHJlY3Qgd2lkdGg9IjM2MCIgaGVpZ2h0PSIzNjAiIGZpbGw9IiNmYWYzZTgiIC8+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwzMCwzMCkiPjxnPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMCwwKSI+PHBhdGggZD0iTTEwMCAwTDEwMCAxMDBIMEMwIDQ0Ljc3MTUgNDQuNzcxNSAwIDEwMCAwWiIgZmlsbD0iI0Y4RDkzOCIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwwKSI+PHBhdGggZD0iTTAgMEwwIDEwMEgxMDBDMTAwIDQ0Ljc3MTUgNTUuMjI4NSAwIDAgMFoiIGZpbGw9IiNGOEQ5MzgiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyMDAsMCkiPjxwYXRoIGQ9Ik01MCAwQzUwIDI3LjYxNDIgNzIuMzg1OCA1MCAxMDAgNTBWMEg1MFoiIGZpbGw9IiMyMjIiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDEwMCkiPjxwYXRoIGQ9Ik01MCAxMDBDNTAgNzIuMzg1OCAyNy42MTQyIDUwIDAgNTBWMTAwSDUwWiIgZmlsbD0iIzFBNDlFRiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwxMDApIj48cGF0aCBkPSJNMTAwIDEwMEgwTDEwMCAwVjEwMFoiIGZpbGw9IiNGOEQ5MzgiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyMDAsMTAwKSI+PHBhdGggZD0iTTUwIDEwMEM1MCA3Mi4zODU4IDcyLjM4NTggNTAgMTAwIDUwVjEwMEg1MFoiIGZpbGw9IiMyMjIiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDIwMCkiPjxwYXRoIGQ9Ik0wIDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBDMTAwIDQ0Ljc3MTUgNTUuMjI4NSAwIDAgMFoiIGZpbGw9IiNGRTQ0NjUiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwxMDAsMjAwKSI+PHBhdGggZD0iTTEwMCAwTDEwMCAxMDBIMEMwIDQ0Ljc3MTUgNDQuNzcxNSAwIDEwMCAwWiIgZmlsbD0iIzFBNDlFRiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIwMCwyMDApIj48cGF0aCBkPSJNNTAgMTAwQzUwIDcyLjM4NTggNzIuMzg1OCA1MCAxMDAgNTBWMTAwSDUwWiIgZmlsbD0iI0Y4RDkzOCIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMCkiPjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRkU0NDY1IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMCkiICBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMTAwLDApIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iIzFBNDlFRiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDApIiAgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIwMCwwKSI+PHBhdGggZD0iTTEwMCAwTDEwMCAxMDBIMEMwIDQ0Ljc3MTUgNDQuNzcxNSAwIDEwMCAwWiIgZmlsbD0iI0ZFNDQ2NSIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMTAwKSI+PHBhdGggZD0iTTUwIDBDNTAgMjcuNjE0MiA3Mi4zODU4IDUwIDEwMCA1MFYwSDUwWiIgZmlsbD0iI0Y4RDkzOCIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwxMDApIj48cGF0aCBkPSJNMCAxMDBIMTAwTDAgMFYxMDBaIiBmaWxsPSIjRkU0NDY1IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMjAwLDEwMCkiPjxwYXRoIGQ9Ik0xMDAgMEgwTDEwMCAxMDBWMFoiIGZpbGw9IiNGRTQ0NjUiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDIwMCkiPjxwYXRoIGQ9Ik0xMDAgMTAwSDBMMTAwIDBWMTAwWiIgZmlsbD0iIzIyMiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwyMDApIj48cGF0aCBkPSJNMTAwIDEwMEgwTDEwMCAwVjEwMFoiIGZpbGw9IiNGOEQ5MzgiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyMDAsMjAwKSI+PHBhdGggZD0iTTAgMEMwIDU1LjIyODUgNDQuNzcxNSAxMDAgMTAwIDEwMEMxMDAgNDQuNzcxNSA1NS4yMjg1IDAgMCAwWiIgZmlsbD0iIzIyMiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMjAwKSI+PGNpcmNsZSByPSI0NS4wMDAwMCIgZmlsbD0iI2ZhZjNlOCIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlPSIjZmFmM2U4IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMCkiPjxwYXRoIGQ9Ik0wIDEwMEwwIDBIMTAwQzEwMCA1NS4yMjg1IDU1LjIyODUgMTAwIDAgMTAwWiIgZmlsbD0iIzIyMiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwwKSI+PHBhdGggZD0iTTAgMEMwIDU1LjIyODUgNDQuNzcxNSAxMDAgMTAwIDEwMEMxMDAgNDQuNzcxNSA1NS4yMjg1IDAgMCAwWiIgZmlsbD0iI0ZFNDQ2NSIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIwMCwwKSI+PHBhdGggZD0iTTAgMEgxMDBMMCAxMDBWMFoiIGZpbGw9IiMxQTQ5RUYiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDEwMCkiPjxwYXRoIGQ9Ik0xMDAgMTAwTDEwMCAwSDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBaIiBmaWxsPSIjRkU0NDY1IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMTAwLDEwMCkiPjxwYXRoIGQ9Ik0xMDAgMTAwTDEwMCAwSDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBaIiBmaWxsPSIjMjIyIiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMjAwLDEwMCkiPjxwYXRoIGQ9Ik0wIDBMMCAxMDBIMTAwQzEwMCA0NC43NzE1IDU1LjIyODUgMCAwIDBaIiBmaWxsPSIjRjhEOTM4IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMCwyMDApIj48cGF0aCBkPSJNMCAxMDBDMCA0NC43NzE1IDQ0Ljc3MTUgMCAxMDAgMEMxMDAgNTUuMjI4NSA1NS4yMjg1IDEwMCAwIDEwMFoiIGZpbGw9IiMxQTQ5RUYiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwxMDAsMjAwKSI+PHBhdGggZD0iTTAgMTAwQzAgNDQuNzcxNSA0NC43NzE1IDAgMTAwIDBDMTAwIDU1LjIyODUgNTUuMjI4NSAxMDAgMCAxMDBaIiBmaWxsPSIjRkU0NDY1IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMjAwLDIwMCkiPjxwYXRoIGQ9Ik0wIDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBDMTAwIDQ0Ljc3MTUgNTUuMjI4NSAwIDAgMFoiIGZpbGw9IiMxQTQ5RUYiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PC9nPjwvZz48L3N2Zz4=) via ipfs.
+There are a few places where you can observe the contract on rinkeby:
+
+- [LooksRare](https://rinkeby.looksrare.org/collections/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9/1#about),
+- [Etherscan](https://rinkeby.etherscan.io/address/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9),
+- [Dethcode](https://rinkeby.etherscan.deth.net/address/0x7345aA6B298DbA85bb01F5ab7963E20399F860D9).
+
+- You can also preview the [animation_url](https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/?resolution=low&tile=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWxuczpzdmdqcz0iaHR0cDovL3N2Z2pzLmRldi9zdmdqcyIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iMzYwIiBoZWlnaHQ9IjM2MCIgaWQ9IlN2Z2pzU3ZnMTAwMCI+PHJlY3Qgd2lkdGg9IjM2MCIgaGVpZ2h0PSIzNjAiIGZpbGw9IiNmYWYzZTgiIC8+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwzMCwzMCkiPjxnPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMCwwKSI+PHBhdGggZD0iTTEwMCAwTDEwMCAxMDBIMEMwIDQ0Ljc3MTUgNDQuNzcxNSAwIDEwMCAwWiIgZmlsbD0iI0Y4RDkzOCIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwwKSI+PHBhdGggZD0iTTAgMEwwIDEwMEgxMDBDMTAwIDQ0Ljc3MTUgNTUuMjI4NSAwIDAgMFoiIGZpbGw9IiNGOEQ5MzgiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyMDAsMCkiPjxwYXRoIGQ9Ik01MCAwQzUwIDI3LjYxNDIgNzIuMzg1OCA1MCAxMDAgNTBWMEg1MFoiIGZpbGw9IiMyMjIiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDEwMCkiPjxwYXRoIGQ9Ik01MCAxMDBDNTAgNzIuMzg1OCAyNy42MTQyIDUwIDAgNTBWMTAwSDUwWiIgZmlsbD0iIzFBNDlFRiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwxMDApIj48cGF0aCBkPSJNMTAwIDEwMEgwTDEwMCAwVjEwMFoiIGZpbGw9IiNGOEQ5MzgiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyMDAsMTAwKSI+PHBhdGggZD0iTTUwIDEwMEM1MCA3Mi4zODU4IDcyLjM4NTggNTAgMTAwIDUwVjEwMEg1MFoiIGZpbGw9IiMyMjIiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDIwMCkiPjxwYXRoIGQ9Ik0wIDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBDMTAwIDQ0Ljc3MTUgNTUuMjI4NSAwIDAgMFoiIGZpbGw9IiNGRTQ0NjUiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwxMDAsMjAwKSI+PHBhdGggZD0iTTEwMCAwTDEwMCAxMDBIMEMwIDQ0Ljc3MTUgNDQuNzcxNSAwIDEwMCAwWiIgZmlsbD0iIzFBNDlFRiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIwMCwyMDApIj48cGF0aCBkPSJNNTAgMTAwQzUwIDcyLjM4NTggNzIuMzg1OCA1MCAxMDAgNTBWMTAwSDUwWiIgZmlsbD0iI0Y4RDkzOCIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMCkiPjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRkU0NDY1IiB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMCkiICBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMTAwLDApIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iIzFBNDlFRiIgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDApIiAgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIwMCwwKSI+PHBhdGggZD0iTTEwMCAwTDEwMCAxMDBIMEMwIDQ0Ljc3MTUgNDQuNzcxNSAwIDEwMCAwWiIgZmlsbD0iI0ZFNDQ2NSIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMTAwKSI+PHBhdGggZD0iTTUwIDBDNTAgMjcuNjE0MiA3Mi4zODU4IDUwIDEwMCA1MFYwSDUwWiIgZmlsbD0iI0Y4RDkzOCIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwxMDApIj48cGF0aCBkPSJNMCAxMDBIMTAwTDAgMFYxMDBaIiBmaWxsPSIjRkU0NDY1IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMjAwLDEwMCkiPjxwYXRoIGQ9Ik0xMDAgMEgwTDEwMCAxMDBWMFoiIGZpbGw9IiNGRTQ0NjUiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDIwMCkiPjxwYXRoIGQ9Ik0xMDAgMTAwSDBMMTAwIDBWMTAwWiIgZmlsbD0iIzIyMiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwyMDApIj48cGF0aCBkPSJNMTAwIDEwMEgwTDEwMCAwVjEwMFoiIGZpbGw9IiNGOEQ5MzgiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwyMDAsMjAwKSI+PHBhdGggZD0iTTAgMEMwIDU1LjIyODUgNDQuNzcxNSAxMDAgMTAwIDEwMEMxMDAgNDQuNzcxNSA1NS4yMjg1IDAgMCAwWiIgZmlsbD0iIzIyMiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMjAwKSI+PGNpcmNsZSByPSI0NS4wMDAwMCIgZmlsbD0iI2ZhZjNlOCIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlPSIjZmFmM2U4IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDAsMCkiPjxwYXRoIGQ9Ik0wIDEwMEwwIDBIMTAwQzEwMCA1NS4yMjg1IDU1LjIyODUgMTAwIDAgMTAwWiIgZmlsbD0iIzIyMiIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwMCwwKSI+PHBhdGggZD0iTTAgMEMwIDU1LjIyODUgNDQuNzcxNSAxMDAgMTAwIDEwMEMxMDAgNDQuNzcxNSA1NS4yMjg1IDAgMCAwWiIgZmlsbD0iI0ZFNDQ2NSIgc3R5bGU9Im9wYWNpdHk6IDAuODg7IiAvPjwvZz48ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDIwMCwwKSI+PHBhdGggZD0iTTAgMEgxMDBMMCAxMDBWMFoiIGZpbGw9IiMxQTQ5RUYiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwwLDEwMCkiPjxwYXRoIGQ9Ik0xMDAgMTAwTDEwMCAwSDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBaIiBmaWxsPSIjRkU0NDY1IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMTAwLDEwMCkiPjxwYXRoIGQ9Ik0xMDAgMTAwTDEwMCAwSDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBaIiBmaWxsPSIjMjIyIiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMjAwLDEwMCkiPjxwYXRoIGQ9Ik0wIDBMMCAxMDBIMTAwQzEwMCA0NC43NzE1IDU1LjIyODUgMCAwIDBaIiBmaWxsPSIjRjhEOTM4IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMCwyMDApIj48cGF0aCBkPSJNMCAxMDBDMCA0NC43NzE1IDQ0Ljc3MTUgMCAxMDAgMEMxMDAgNTUuMjI4NSA1NS4yMjg1IDEwMCAwIDEwMFoiIGZpbGw9IiMxQTQ5RUYiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PGcgdHJhbnNmb3JtPSJtYXRyaXgoMSwwLDAsMSwxMDAsMjAwKSI+PHBhdGggZD0iTTAgMTAwQzAgNDQuNzcxNSA0NC43NzE1IDAgMTAwIDBDMTAwIDU1LjIyODUgNTUuMjI4NSAxMDAgMCAxMDBaIiBmaWxsPSIjRkU0NDY1IiBzdHlsZT0ib3BhY2l0eTogMC44ODsiIC8+PC9nPjxnIHRyYW5zZm9ybT0ibWF0cml4KDEsMCwwLDEsMjAwLDIwMCkiPjxwYXRoIGQ9Ik0wIDBDMCA1NS4yMjg1IDQ0Ljc3MTUgMTAwIDEwMCAxMDBDMTAwIDQ0Ljc3MTUgNTUuMjI4NSAwIDAgMFoiIGZpbGw9IiMxQTQ5RUYiIHN0eWxlPSJvcGFjaXR5OiAwLjg4OyIgLz48L2c+PC9nPjwvZz48L3N2Zz4=) via ipfs.
