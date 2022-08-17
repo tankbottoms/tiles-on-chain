@@ -158,7 +158,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   //*********************************************************************//
 
   receive() external payable {
-    _payTreasury();
+    _payTreasury(address(0));
   }
 
   /**
@@ -173,23 +173,23 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert INCORRECT_PRICE();
     }
 
-    _payTreasury();
+    _payTreasury(msg.sender);
 
     mintedTokenId = _mint(msg.sender, msg.sender);
   }
 
-  function grab(address tile) external payable override nonReentrant returns (uint256 mintedTokenId) {
+  function grab(address _tile) external payable override nonReentrant returns (uint256 mintedTokenId) {
     if (address(priceResolver) == address(0)) {
       revert UNSUPPORTED_OPERATION();
     }
 
-    if (msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), tile))) {
+    if (msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), _tile))) {
       revert INCORRECT_PRICE();
     }
 
-    _payTreasury();
+    _payTreasury(_tile);
 
-    mintedTokenId = _mint(msg.sender, tile);
+    mintedTokenId = _mint(msg.sender, _tile);
   }
 
   /**
@@ -197,7 +197,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     */
   function merkleMint(
     uint256 index,
-    address tile,
+    address _tile,
     bytes calldata proof
   ) external payable override nonReentrant returns (uint256 mintedTokenId) {
     if (address(priceResolver) == address(0)) {
@@ -208,9 +208,9 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert INCORRECT_PRICE();
     }
 
-    _payTreasury();
+    _payTreasury(_tile);
 
-    mintedTokenId = _mint(msg.sender, tile);
+    mintedTokenId = _mint(msg.sender, _tile);
   }
 
   /**
@@ -385,13 +385,13 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   /**
    * @dev Attempts to forward payment to the default registered terminal for Ether.
    */
-  function _payTreasury() private {
+  function _payTreasury(address _tile) private {
     IJBPaymentTerminal terminal = jbxDirectory.primaryTerminalOf(jbxProjectId, JBTokens.ETH);
     if (address(terminal) == address(0)) {
       return;
     }
 
-    terminal.pay(jbxProjectId, msg.value, JBTokens.ETH, msg.sender, 0, false, '', '');
+    terminal.pay(jbxProjectId, msg.value, JBTokens.ETH, msg.sender, 0, false, (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)), '');
   }
 
   /**
