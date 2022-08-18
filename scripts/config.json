@@ -4,7 +4,7 @@
         "symbol": "TTILES2",
         "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
         "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
-        "projectId": "4471",
+        "projectId": "98",
         "basePrice": "0.0001",
         "priceCap": "128",
         "multiplier": 2,
@@ -16,9 +16,9 @@
         "gatewayPreviewUrl": "https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/",
         "priceResolver": "0x432124c3eE06A95e0Cf01A3A1a02AF19F1600a59",
         "priceResolverType": "SupplyPriceResolver",
-        "token": "0xe9595c465Bf76F72279D67d09f7425969f11bC46",
+        "token": "0xF156362B55f5D1B96f8323b2393B142C91b25c30",
         "royalty": 750,
-        "manager": "0x3dC17b930D586b70AD2Bb7f09465bE455BFA8fE6",
+        "manager": "",
         "minters": [
             "0x8a97426C1a720a45B8d69E974631f01f1168232B",
             "0x63a2368f4b509438ca90186cb1c15156713d5834",
@@ -34,7 +34,7 @@
         "symbol": "TILES2",
         "openSeaMetadata": "ipfs://QmShnESruGc1tUAEStzULuFHGcCZV1RXepBGbFKjGBiC2z",
         "legacyTilesContract": "0x64931F06d3266049Bf0195346973762E6996D764",
-        "projectId": "41",
+        "projectId": "174",
         "basePrice": "0.0001",
         "priceCap": "128",
         "multiplier": 2,
@@ -44,15 +44,31 @@
         "tileContentProvider": "0x0003fCcD5860CBC57e5181740b2D5649E5c5cb13",
         "gatewayAnimationUrl": "https://ipfs.io/ipfs/bafybeifkqnc5d2jqrotfx4dz3ye3lxgtaasqfh2exnar5incy35nbwlbrm/",
         "gatewayPreviewUrl": "https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/",
-        "priceResolver": "0x30ebbf18cc7286105e0d02cb06ee78684aff722c",
+        "priceResolver": "0x362cb7AA4424aFC086488ea93de33D9dAb0627dC",
         "priceResolverType": "LegacyOwnershipPriceResolver",
-        "token": "0x894EaDA0D9eA2314CdB72C016d0FAA424Db0e4a0",
+        "token": "0x8B578C09F054F2A8711Caa8B40C3574661F7A717",
         "royalty": 500,
         "manager": "",
         "minters": [
-            "0x63a2368f4b509438ca90186cb1c15156713d5834",
-            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad"
+            "0x4493287882f75dFFcdB40FD41d38d6308Fb8c181",
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad",
+            "0x5d95baEBB8412AD827287240A5c281E3bB30d27E"
         ],
-        "gift": []
+        "gift": [
+            "0x90eda5165e5e1633e0bdb6307cdecae564b10ff7",
+            "0x63a2368f4b509438ca90186cb1c15156713d5834",
+            "0x823b92d6a4b2aed4b15675c7917c9f922ea8adad",
+            "0xe7879a2d05dba966fcca34ee9c3f99eee7edefd1",
+            "0x1dd2091f250876ba87b6fe17e6ca925e1b1c0cf0",
+            "0x4823e65c10daa3ef320e5e262cfa8d0a059e02a6",
+            "0x5566b7cb1cccb3e147084cf971d6dda770a3c90f",
+            "0x5d95baebb8412ad827287240a5c281e3bb30d27e",
+            "0x30670d81e487c80b9edc54370e6eaf943b6eab39",
+            "0x6860f1a0cf179ed93abd3739c7f6c8961a4eea3c",
+            "0xe41188926607921763d25392475f1156ac5f9033",
+            "0x90eda5165e5e1633e0bdb6307cdecae564b10ff7",
+            "0x28c173b8f20488eef1b0f48df8453a2f59c38337",
+            "0x2DdA8dc2f67f1eB94b250CaEFAc9De16f70c5A51"
+        ]
     }
 }
