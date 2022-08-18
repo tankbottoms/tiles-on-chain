@@ -102,13 +102,18 @@ contract LegacyOwnershipPriceResolver is SupplyPriceResolver {
     bytes calldata params
   ) public view virtual override returns (uint256 price) {
     address tileAddress = bytesToAddress(params, 32);
-    uint256 originalTileId = legacyContract.idOfAddress(tileAddress);
-    address originalOwner = legacyContract.ownerOf(originalTileId);
 
-    if (account != originalOwner) {
+    uint256 originalTileId = legacyContract.idOfAddress(tileAddress);
+    if (originalTileId == 0) {
       price = super.getPriceWithParams(account, 0, params);
     } else {
-      price = 0;
+      address originalOwner = legacyContract.ownerOf(originalTileId);
+
+      if (account != originalOwner) {
+        price = super.getPriceWithParams(account, 0, params);
+      } else {
+        price = 0;
+      }
     }
   }
 
