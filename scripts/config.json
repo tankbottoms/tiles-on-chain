@@ -46,7 +46,7 @@
         "gatewayPreviewUrl": "https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/",
         "priceResolver": "0x362cb7AA4424aFC086488ea93de33D9dAb0627dC",
         "priceResolverType": "LegacyOwnershipPriceResolver",
-        "token": "0x8B578C09F054F2A8711Caa8B40C3574661F7A717",
+        "token": "0xa0dadfA9279C1379CfcAbd8e21Af78b9064cCeb0",
         "royalty": 500,
         "manager": "",
         "minters": [
