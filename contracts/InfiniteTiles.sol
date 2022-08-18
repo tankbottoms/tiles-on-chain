@@ -69,10 +69,10 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   error INVALID_RATE();
 
   string public baseUri;
-  IPriceResolver private priceResolver;
-  ITileContentProvider private tokenUriResolver;
+  IPriceResolver priceResolver;
+  ITileContentProvider tokenUriResolver;
   mapping(address => bool) private minters;
-  IJBDirectory private jbxDirectory;
+  IJBDirectory jbxDirectory;
   uint256 jbxProjectId;
 
   /**
@@ -169,7 +169,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert UNSUPPORTED_OPERATION();
     }
 
-    if (msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply()))) {
+    if (msg.value != priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), msg.sender))) {
       revert INCORRECT_PRICE();
     }
 
@@ -228,7 +228,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert UNSUPPORTED_OPERATION();
     }
 
-    if (msg.value != priceResolver.getPriceWithParams(msg.sender, tokenId, abi.encodePacked(totalSupply()))) {
+    if (msg.value != priceResolver.getPriceWithParams(msg.sender, tokenId, abi.encodePacked(totalSupply(), msg.sender))) {
       revert INCORRECT_PRICE();
     }
 
@@ -355,7 +355,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   }
 
   /**
-   * @notice Changes the associated price resolver.
+   * @notice Changes the associated token uri resolver.
    */
   function setTokenUriResolver(ITileContentProvider _tokenUriResolver) external override onlyOwner {
     tokenUriResolver = _tokenUriResolver;
@@ -376,6 +376,14 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     if (royaltyRate == 0) {
       royaltyRate = _royaltyRate;
     }
+  }
+
+/**
+ * @notice Changes Juicebox directory and project id which will influence how payments are processed
+ */
+  function setJuiceboxParams(IJBDirectory _jbxDirectory, uint256 _jbxProjectId) external onlyOwner {
+    jbxDirectory = _jbxDirectory;
+    jbxProjectId = _jbxProjectId;
   }
 
   //*********************************************************************//
