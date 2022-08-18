@@ -3,34 +3,7 @@ import * as hre from 'hardhat';
 import { ethers } from 'hardhat';
 import * as winston from 'winston';
 
-enum PriceFunction {
-    LINEAR,
-    EXP,
-}
-
-type ConfigurationGroup = {
-    name: string,
-    symbol: string,
-    openSeaMetadata: string,
-    legacyTilesContract: string,
-    projectId: number | string,
-    basePrice: string,
-    priceCap: string,
-    multiplier: number | string,
-    tierSize: number | string,
-    jbxDirectory: string;
-    stringHelpersLibrary: string,
-    tileContentProvider: string,
-    gatewayAnimationUrl: string,
-    gatewayPreviewUrl: string,
-    priceResolver: string,
-    priceResolverType: 'SupplyPriceResolver' | 'LegacyOwnershipPriceResolver' | 'MerkleRootPriceResolver',
-    token: string,
-    royalty: number,
-    manager: string,
-    minters: string[],
-    gift: string[]
-}
+import { PriceFunction, ConfigurationGroup } from './types';
 
 function sleep(ms = 1_000) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -116,6 +89,7 @@ async function main() {
 
     let newPricer = false;
     let priceResolverAddress = activeConfig.priceResolver;
+
     if (!priceResolverAddress || priceResolverAddress.length === 0) {
         if (activeConfig.priceResolverType === 'LegacyOwnershipPriceResolver') {
             logger.debug(`deploying LegacyOwnershipPriceResolver with params: ${activeConfig.legacyTilesContract}, ${activeConfig.basePrice}, ${activeConfig.multiplier}, ${activeConfig.tierSize}, ${activeConfig.priceCap}, ${PriceFunction.LINEAR}`);
@@ -159,13 +133,17 @@ async function main() {
 
             config[hre.network.name].priceResolver = linearSupplyPriceResolver.address;
             fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+            newPricer = true;
         } else if (activeConfig.priceResolverType === 'MerkleRootPriceResolver') {
             // TODO
+            logger.error('MerkleRootPriceResolver deployment not implemented');
         }
     } else {
         logger.info(`LegacyOwnershipPriceResolver contract reported at ${priceResolverAddress}`);
     }
 
+    let newToken = false;
     let tokenAddress = activeConfig.token;
     let tileNFT;
     if (!tokenAddress || tokenAddress.length === 0) {
@@ -179,7 +157,7 @@ async function main() {
                 activeConfig.symbol,
                 '',
                 priceResolverAddress,
-                tileContentProviderAddress,
+                (newProvider ? tileContentProviderAddress : ethers.constants.AddressZero),
                 activeConfig.jbxDirectory,
                 activeConfig.projectId,
                 activeConfig.openSeaMetadata
@@ -192,11 +170,20 @@ async function main() {
 
         config[hre.network.name].token = tileNFT.address;
         fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+        if(!newProvider) {
+            logger.info(`updating TileContentProvider to ${tileContentProviderAddress}`);
+            const tx = await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
+            await tx.wait();
+        }
+
+        newToken = true;
     } else {
         logger.info(`InfiniteTiles contract reported at ${tokenAddress}`);
 
         const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
         tileNFT = await tileNFTFactory.attach(tokenAddress);
+
         if (newProvider) {
             logger.info(`updating TileContentProvider to ${tileContentProviderAddress}`);
             const tx = await tileNFT.connect(deployer).setTokenUriResolver(tileContentProviderAddress);
@@ -210,12 +197,14 @@ async function main() {
         }
     }
 
-    try {
-        const tx = await tileContentProvider.connect(deployer).setParent(tokenAddress);
-        await tx.wait();
-        logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`);
-    } catch (err) {
-        logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
+    if (newToken || newProvider) {
+        try {
+            const tx = await tileContentProvider.connect(deployer).setParent(tokenAddress);
+            await tx.wait();
+            logger.info(`set parent on TileContentProvider at ${tileContentProviderAddress} to ${tokenAddress}`);
+        } catch (err) {
+            logger.error(`could not set parent on ${tileContentProviderAddress} due to ${err}`);
+        }
     }
 
     try {
@@ -285,7 +274,7 @@ async function main() {
                 activeConfig.symbol,
                 '',
                 priceResolverAddress,
-                tileContentProviderAddress,
+                (newProvider ? tileContentProviderAddress : ethers.constants.AddressZero),
                 activeConfig.jbxDirectory,
                 activeConfig.projectId,
                 activeConfig.openSeaMetadata
