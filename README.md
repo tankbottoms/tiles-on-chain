@@ -1,12 +1,12 @@
-# Infinite Tiles v2
+# Infinite Tiles v2 ([https://Tiles.wtf](https://tiles.wtf))
 
 ## About
 
 Inspired by both [Neoplastics](https://neolastics.com/) and Infinite Tiles v1 algorithm, this repo reversed-engineered the [TilesDAO's](https://tiles.art/#/) minified api-server at [Tiles-API](https://github.com/TileDAO/tiles-api) to derive the Tile generation algorithm to implement it in Solidity. Infinite Tiles generates a Tile for each Ethereum address. The repository uses Typescript and Solidity.
 
-The Smart Contracts for Infinite Tiles is significantly different than other NFTs, such that a content provider on-chain, pricing resolver, metadata and the frontend gallery were all written from scratch in Svelte, including the DAO treasury is a version 2 of Juicebox.
+The Smart Contracts for Infinite Tiles uses an (on-chain) content provider and a pricing resolver.  The front-end gallery, minting manager, and Juicebox treasury were written with Svelte and Typescript.
 
-[https://Tiles.wtf](https://tiles.wtf); The Tiles minting front-end as well as an operational Juicebox Treasury together make [Tiles-wtf-gallery](https://github.com/tankbottoms/tiles-wtf-gallery) a helpful reference source for anyone interested in a full-featured decentralized application or DAPP.
+The Tiles minting front-end as well as an operational Juicebox Treasury together make [Tiles-wtf-gallery](https://github.com/tankbottoms/tiles-wtf-gallery) a helpful reference source for anyone interested in a full-featured decentralized application or DAPP.
 
 ## Minting
 
