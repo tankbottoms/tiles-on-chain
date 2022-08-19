@@ -399,7 +399,19 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       return;
     }
 
-    terminal.pay(jbxProjectId, msg.value, JBTokens.ETH, msg.sender, 0, false, (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)), '');
+    (bool success, ) = address(terminal).call{value: msg.value}(
+        abi.encodeWithSelector(
+            terminal.pay.selector,
+            jbxProjectId,
+            msg.value,
+            JBTokens.ETH,
+            msg.sender,
+            0,
+            false,
+            (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)),
+            0x0
+        )
+    );
   }
 
   /**
