@@ -65,7 +65,7 @@ abstract contract AbstractTileNFTContent {
     '<path d="M50 0C50 27.6142 27.6142 50 0 50V0H50Z" fill="#000"/>'
   ];
 
-  string canvasColor = '#faf3e8';
+  string constant canvasColor = '#faf3e8';
 
   string svgHeader =
     string(
@@ -76,9 +76,9 @@ abstract contract AbstractTileNFTContent {
       )
     );
 
-  string svgFooter = '</g></g></svg>';
+  string constant svgFooter = '</g></g></svg>';
 
-  uint16 sectorSize = 100;
+  uint16 constant sectorSize = 100;
 
   uint8[] public positionIndex = [
     0,
