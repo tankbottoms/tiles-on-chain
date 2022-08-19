@@ -29,8 +29,8 @@ library StringHelpers {
     uint256 c = _a / _b;
     uint256 d = (_a * (10**n)) / _b;
 
-    bytes memory _cBytes = abi.encodePacked(c > 0 ? Strings.toString(c) : '');
-    bytes memory _dBytes = abi.encodePacked(d > 0 ? Strings.toString(d) : '0');
+    bytes memory _cBytes = abi.encodePacked(c != 0 ? Strings.toString(c) : '');
+    bytes memory _dBytes = abi.encodePacked(d != 0 ? Strings.toString(d) : '0');
     bytes memory _finalBytes = new bytes(_cBytes.length + 1 + n);
 
     for (uint256 i = 0; i <= _cBytes.length; i++) {

@@ -61,11 +61,11 @@ import './StringHelpers.sol';
 contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ownable {
   error PRIVILEGED_OPERATION();
 
-  string private red = '#FE4465';
-  string private black = '#222';
-  string private blue = '#1A49EF';
-  string private yellow = '#F8D938';
-  string private description =
+  string private constant red = '#FE4465';
+  string private constant black = '#222';
+  string private constant blue = '#1A49EF';
+  string private constant yellow = '#F8D938';
+  string private constant description =
     'Humans are characterized by a desire to form communities around ideas, symbols, and artifacts that satisfy our overlapping interpretations of beauty. Tiles are a celebration of what gives meaning to those communities: the individual.There is one Tile generated for every possible ETH wallet address each representing a unique identity in the decentralized ecosystem that makes projects like this possible.  Mathematically, all Tiles are equally rare.  They are all fashioned from the same assortment of simple shapes and colors, but each in a unique way. In that sense, Tiles are a bit like us.  Because the supply is virtually infinite, funding for the DAO may continue indefinitely, as long as Tiles are sold. - peri.eth';
 
   string[][] private sectorColorVariants = [
@@ -125,7 +125,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
         continue;
       }
 
-      uint160 ringIndex = indexes[i] > 0 ? indexes[i] - 1 : indexes[i];
+      uint160 ringIndex = indexes[i] != 0 ? indexes[i] - 1 : indexes[i];
       rings[ringsCount].positionIndex = positionIndex[ringIndex];
       rings[ringsCount].size = size[ringIndex];
       rings[ringsCount].layer = layer[ringIndex];
@@ -401,7 +401,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
     uint16[] memory chars = new uint16[](40);
     uint160 temp = uint160(_address);
     uint32 i = 0;
-    while (temp > 0) {
+    while (temp != 0) {
       uint16 right_most_digit = uint16(temp % 16);
       temp -= right_most_digit;
       temp /= 16;
