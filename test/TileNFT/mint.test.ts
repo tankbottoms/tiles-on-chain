@@ -12,7 +12,7 @@ enum PriceFunction {
     EXP,
 }
 
-describe('InfiniteTiles mint tests', () => {
+describe('InfiniteTiles supply mint tests', () => {
     let deployer: SignerWithAddress;
     let accounts: SignerWithAddress[];
     let tileNFT: any;
