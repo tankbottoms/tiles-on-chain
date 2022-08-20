@@ -41,7 +41,7 @@
         "tierSize": 512,
         "jbxDirectory": "0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C",
         "stringHelpersLibrary": "0xa8c720adbea12435a7a2678bbeba821c7a94d48d",
-        "tileContentProvider": "",
+        "tileContentProvider": "0x4F0Fba0652E61cD1Ec62E65e58c053F93b2D079F",
         "gatewayAnimationUrl": "https://tiles.wtf/render/ethereal/0x8a97426C1a720a45B8d69E974631f01f1168232B",
         "gatewayPreviewUrl": "https://us-central1-juicebox-svelte.cloudfunctions.net/app/render/simple/",
         "priceResolver": "0x362cb7AA4424aFC086488ea93de33D9dAb0627dC",
