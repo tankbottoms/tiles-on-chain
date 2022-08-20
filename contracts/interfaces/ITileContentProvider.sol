@@ -52,6 +52,4 @@ interface ITileContentProvider is ITokenUriResolver {
   function setParent(IInfiniteTiles) external;
 
   function getSvgContent(address) external view returns (string memory);
-
-  function externalPreviewUrl(address) external view returns (string memory);
 }
