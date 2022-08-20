@@ -2,7 +2,7 @@
 
 Contract ABI can be found in the abi folder. Addresses for deployed contracts are below.
 
-## mainnet
+## Mainnet
 
 - [NFT contract](https://etherscan.io/address/0x8B578C09F054F2A8711Caa8B40C3574661F7A717)
 - [LegacyOwnershipPriceResolver](https://etherscan.io/address/0x30ebbf18cc7286105e0d02cb06ee78684aff722c)
@@ -11,10 +11,10 @@ Contract ABI can be found in the abi folder. Addresses for deployed contracts ar
 
 External contracts
 
-- [Juicebox directory](https://etherscan.io/address/0x64931F06d3266049Bf0195346973762E6996D764), using [project 174](https://tiles.wtf/dao?network=mainnet)
+- [Juicebox directory](https://etherscan.io/address/0x64931F06d3266049Bf0195346973762E6996D764), using [Project 174](https://tiles.wtf/dao?network=mainnet)
 - [Original Tiles NFT](https://etherscan.io/address/0xCc8f7a89d89c2AB3559f484E0C656423E979ac9C)
 
-## rinkeby
+## Rinkeby
 
 - [NFT contract](https://rinkeby.etherscan.io/address/0xe9595c465Bf76F72279D67d09f7425969f11bC46)
 - [SupplyPriceResolver](https://rinkeby.etherscan.io/address/0x432124c3eE06A95e0Cf01A3A1a02AF19F1600a59)
