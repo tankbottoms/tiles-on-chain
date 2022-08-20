@@ -68,7 +68,6 @@ describe('InfiniteTiles legacy mint tests', () => {
       .deploy(
         'On-chain Tile',
         'OT',
-        '',
         legacyOwnershipPriceResolver.address,
         tileContentProvider.address,
         mockJbDirectory.address,

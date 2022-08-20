@@ -55,7 +55,6 @@ describe('InfiniteTiles seize tests', function () {
       .deploy(
         'On-chain Tile',
         'OT',
-        '',
         linearSupplyPriceResolver.address,
         tileContentProvider.address,
         mockJbDirectory.address,

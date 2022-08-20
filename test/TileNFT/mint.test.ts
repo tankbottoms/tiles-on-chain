@@ -16,7 +16,6 @@ describe('InfiniteTiles supply mint tests', () => {
     let deployer: SignerWithAddress;
     let accounts: SignerWithAddress[];
     let tileNFT: any;
-    let staticUriTileNFT: any;
     let pricelessTileNFT: any;
 
     before(async () => {
@@ -65,22 +64,8 @@ describe('InfiniteTiles supply mint tests', () => {
             .deploy(
                 'On-chain Tile',
                 'OT',
-                '',
                 linearSupplyPriceResolver.address,
                 tileContentProvider.address,
-                mockJbDirectory.address,
-                projectId,
-                'ipfs://metadata',
-            );
-
-        staticUriTileNFT = await tileNFTFactory
-            .connect(deployer)
-            .deploy(
-                'On-chain Tile',
-                'OT',
-                '',
-                linearSupplyPriceResolver.address,
-                ethers.constants.AddressZero,
                 mockJbDirectory.address,
                 projectId,
                 'ipfs://metadata',
@@ -91,7 +76,6 @@ describe('InfiniteTiles supply mint tests', () => {
             .deploy(
                 'On-chain Tile',
                 'OT',
-                '',
                 ethers.constants.AddressZero,
                 anotherTileContentProvider.address,
                 mockJbDirectory.address,
@@ -151,20 +135,6 @@ describe('InfiniteTiles supply mint tests', () => {
         await expect(
             tileNFT.connect(accounts[addressIndex]).mint({ value: ethers.utils.parseEther('0.0002') }),
         ).to.be.revertedWith('INCORRECT_PRICE()');
-    });
-
-    it('Should get static token URI', async () => {
-        let expectedTokenId = 1;
-        let addressIndex = 0;
-        await expect(
-            staticUriTileNFT
-                .connect(accounts[addressIndex])
-                .mint({ value: ethers.utils.parseEther('0.0001') }),
-        )
-            .to.emit(staticUriTileNFT, 'Transfer')
-            .withArgs(ethers.constants.AddressZero, accounts[addressIndex].address, expectedTokenId);
-
-        expect(await staticUriTileNFT.tokenURI(expectedTokenId)).to.equal('');
     });
 
     it('Should not mint without price resolver', async () => {

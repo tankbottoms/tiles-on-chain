@@ -69,7 +69,6 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   error INVALID_RATE();
   error MINT_PAUSED();
 
-  string public baseUri;
   IPriceResolver priceResolver;
   ITileContentProvider tokenUriResolver;
   mapping(address => bool) private minters;
@@ -112,7 +111,6 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
 
     @param _name Token name.
     @param _symbol Token symbol.
-    @param _baseUri Token base URI if URI resolver is not present.
     @param _priceResolver Price resolver.
     @param _tokenUriResolver Token URI resolver.
     @param _jbxDirectory Jukebox project directory.
@@ -122,14 +120,12 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   constructor(
     string memory _name,
     string memory _symbol,
-    string memory _baseUri,
     IPriceResolver _priceResolver,
     ITileContentProvider _tokenUriResolver,
     IJBDirectory _jbxDirectory,
     uint256 _jbxProjectId,
     string memory _metadataUri
   ) ERC721Enumerable(_name, _symbol) {
-    baseUri = _baseUri;
     priceResolver = _priceResolver;
     tokenUriResolver = _tokenUriResolver;
     jbxDirectory = _jbxDirectory;
@@ -151,7 +147,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     } else if (address(tokenUriResolver) != address(0)) {
       uri = tokenUriResolver.tokenUri(tokenId);
     } else {
-      uri = baseUri;
+      uri = '';
     }
   }
 
