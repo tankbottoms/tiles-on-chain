@@ -67,6 +67,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   error INVALID_AMOUNT();
   error ALREADY_MINTED();
   error INVALID_RATE();
+  error MINT_PAUSED();
 
   string public baseUri;
   IPriceResolver priceResolver;
@@ -97,6 +98,11 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
    * @notice Royalty rate expressed in bps.
    */
   uint16 public royaltyRate;
+
+  /**
+   * @notice Allows pausing of the mint.
+   */
+  bool paused;
 
   //*********************************************************************//
   // -------------------------- constructor ---------------------------- //
@@ -165,6 +171,10 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     @notice Allows minting by anyone at the correct price.
   */
   function mint() external payable override nonReentrant returns (uint256 mintedTokenId) {
+    if (paused) {
+        revert MINT_PAUSED();
+    }
+
     if (address(priceResolver) == address(0)) {
       revert UNSUPPORTED_OPERATION();
     }
@@ -179,6 +189,10 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   }
 
   function grab(address _tile) external payable override nonReentrant returns (uint256 mintedTokenId) {
+    if (paused) {
+        revert MINT_PAUSED();
+    }
+
     if (address(priceResolver) == address(0)) {
       revert UNSUPPORTED_OPERATION();
     }
@@ -200,6 +214,10 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     address _tile,
     bytes calldata proof
   ) external payable override nonReentrant returns (uint256 mintedTokenId) {
+    if (paused) {
+        revert MINT_PAUSED();
+    }
+
     if (address(priceResolver) == address(0)) {
       revert UNSUPPORTED_OPERATION();
     }
@@ -214,7 +232,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   }
 
   /**
-    @notice 
+    * @notice Allows the sender to seize the tile with their address from the current owner at the current mint price. The payment will again be made to the associated Juicebox project. This is a means of discouraging people from minting tiles for addresses they do not control.
     */
   function seize() external payable override returns (uint256 tokenId) {
     tokenId = idForAddress[msg.sender];
@@ -232,7 +250,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       revert INCORRECT_PRICE();
     }
 
-    require(payable(owner).send(msg.value));
+    _payTreasury(msg.sender);
 
     _reassign(owner, msg.sender, tokenId);
   }
@@ -294,35 +312,39 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   //*********************************************************************//
 
   /**
-    @notice Allows direct mint by priviledged accounts bypassing price checks.
+    * @notice Allows direct mint by priviledged accounts bypassing price checks.
     */
   function superMint(address _account, address _tile) external payable override nonReentrant onlyMinter(msg.sender) returns (uint256 mintedTokenId) {
+    if (paused) {
+        revert MINT_PAUSED();
+    }
+
     mintedTokenId = _mint(_account, _tile);
   }
 
   /**
-    @notice Adds a priviledged minter account.
-    */
+   * @notice Adds a priviledged minter account.
+   */
   function registerMinter(address _minter) external override onlyOwner {
     minters[_minter] = true;
   }
 
   /**
-    @notice Removes a priviledged minter account.
-    */
+   * @notice Removes a priviledged minter account.
+   */
   function removeMinter(address _minter) external override onlyOwner {
     minters[_minter] = false;
   }
 
   /**
-    @notice Changes the associated price resolver.
+    * @notice Changes the associated price resolver.
     */
   function setPriceResolver(IPriceResolver _priceResolver) external override onlyOwner {
     priceResolver = _priceResolver;
   }
 
   /**
-    @notice Changes contract metadata uri.
+    * @notice Changes contract metadata uri.
     */
   function setContractUri(string calldata contractUri) external override onlyOwner {
     _contractUri = contractUri;
@@ -378,12 +400,16 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     }
   }
 
-/**
- * @notice Changes Juicebox directory and project id which will influence how payments are processed
- */
+  /**
+   * @notice Changes Juicebox directory and project id which will influence how payments are processed
+   */
   function setJuiceboxParams(IJBDirectory _jbxDirectory, uint256 _jbxProjectId) external onlyOwner {
     jbxDirectory = _jbxDirectory;
     jbxProjectId = _jbxProjectId;
+  }
+
+  function setPause(bool _pause) external onlyOwner {
+    paused = _pause;
   }
 
   //*********************************************************************//
@@ -400,17 +426,17 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     }
 
     (bool success, ) = address(terminal).call{value: msg.value}(
-        abi.encodeWithSelector(
-            terminal.pay.selector,
-            jbxProjectId,
-            msg.value,
-            JBTokens.ETH,
-            msg.sender,
-            0,
-            false,
-            (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)),
-            0x0
-        )
+      abi.encodeWithSelector(
+        terminal.pay.selector,
+        jbxProjectId,
+        msg.value,
+        JBTokens.ETH,
+        msg.sender,
+        0,
+        false,
+        (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)),
+        0x0
+      )
     );
   }
 
@@ -473,7 +499,8 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
    * @dev See {IERC165-supportsInterface}.
    */
   function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-    return interfaceId == type(IERC2981).interfaceId // 0x2a55205a
-        || super.supportsInterface(interfaceId);
+    return
+      interfaceId == type(IERC2981).interfaceId || // 0x2a55205a
+      super.supportsInterface(interfaceId);
   }
 }
