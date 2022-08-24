@@ -379,7 +379,7 @@ contract TileContentProvider is AbstractTileNFTContent, ITileContentProvider, Ow
             image,
             '", "image_data": "data:image/svg+xml;base64,',
             image,
-            '", "animation_url":,
+            '", "animation_url":',
             gatewayAnimationUrl,
             '0x',
             StringHelpers.toAsciiString(_tile),
