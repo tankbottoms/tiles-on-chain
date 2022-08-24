@@ -3,6 +3,7 @@ import { ethers } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 describe('PatternPriceResolver Tests', () => {
+    let sixBytePatternPriceResolver: any;
     let twoBytePatternPriceResolver: any;
     let oneBytePatternPriceResolver: any;
     let halfBytePatternPriceResolver: any;
@@ -19,6 +20,10 @@ describe('PatternPriceResolver Tests', () => {
         [deployer, ...accounts] = await ethers.getSigners();
 
         const patternPriceResolverFactory = await ethers.getContractFactory('PatternPriceResolver', deployer);
+
+        sixBytePatternPriceResolver = await patternPriceResolverFactory
+            .connect(deployer)
+            .deploy(basePrice, priceIncrement.mul(3), 16 * 3);
 
         twoBytePatternPriceResolver = await patternPriceResolverFactory
             .connect(deployer)
@@ -106,5 +111,21 @@ describe('PatternPriceResolver Tests', () => {
 
         expect(await halfBytePatternPriceResolver.getPriceWithParams(addressParam, 0, params))
             .to.equal(basePrice.add(priceIncrement.div(4).mul(35)));
+    });
+
+    it('getPriceWithParams(address, uint256, bytes), 6-byte pairs', async function () {
+        let params = ethers.utils.solidityPack(
+            ['uint256', 'address'],
+            [supplyParam, '0xffff01234567809a01234567809b01234567809a']);
+
+        expect(await sixBytePatternPriceResolver.getPriceWithParams(addressParam, 0, params))
+            .to.equal(basePrice.add(priceIncrement.mul(3)));
+
+        params = ethers.utils.solidityPack(
+            ['uint256', 'address'],
+            [supplyParam, '0xffffaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']);
+
+        expect(await sixBytePatternPriceResolver.getPriceWithParams(addressParam, 0, params))
+            .to.equal(basePrice.add(priceIncrement.mul(3).mul(2)));
     });
 });
