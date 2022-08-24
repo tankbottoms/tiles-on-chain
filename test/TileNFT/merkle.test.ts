@@ -60,7 +60,6 @@ describe('InfiniteTiles Merkle-tree mint tests', function () {
       .deploy(
         'On-chain Tile',
         'OT',
-        '',
         merkleRootPriceResolverResolver.address,
         tileContentProvider.address,
         mockJbDirectory.address,

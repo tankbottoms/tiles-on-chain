@@ -18,8 +18,9 @@ describe('InfiniteTiles privileged operations tests', () => {
     let deployer: SignerWithAddress;
     let accounts: SignerWithAddress[];
 
+    const basePrice = ethers.utils.parseEther('0.0001');
+
     before(async () => {
-        const basePrice = ethers.utils.parseEther('0.0001');
         const priceCap = ethers.utils.parseEther('128');
         const multiplier = 2;
         const tierSize = 128;
@@ -32,9 +33,8 @@ describe('InfiniteTiles privileged operations tests', () => {
         await ethTerminal.mock.pay.returns(0);
 
         const mockJbDirectory = await deployMockContract(deployer, jbDirectory.abi);
-        await mockJbDirectory.mock.primaryTerminalOf
-            .withArgs(projectId, ethToken)
-            .returns(ethTerminal.address);
+        await mockJbDirectory.mock.primaryTerminalOf.withArgs(projectId, ethToken).returns(ethTerminal.address);
+        await mockJbDirectory.mock.primaryTerminalOf.withArgs(0, ethToken).returns(ethers.constants.AddressZero);
         await mockJbDirectory.mock.isTerminalOf.withArgs(projectId, ethTerminal.address).returns(true);
         await mockJbDirectory.mock.isTerminalOf.withArgs(projectId, deployer.address).returns(false);
 
@@ -64,7 +64,6 @@ describe('InfiniteTiles privileged operations tests', () => {
             .deploy(
                 'On-chain Tile',
                 'OT',
-                '',
                 linearSupplyPriceResolver.address,
                 tileContentProvider.address,
                 mockJbDirectory.address,
@@ -77,13 +76,22 @@ describe('InfiniteTiles privileged operations tests', () => {
             .deploy(
                 'On-chain Tile',
                 'OT',
-                '',
                 linearSupplyPriceResolver.address,
                 anotherTileContentProvider.address,
                 mockJbDirectory.address,
-                projectId,
+                0,
                 'ipfs://metadata',
             );
+    });
+
+    it('Should pause minting', async () => {
+        await tileNFT.connect(deployer).setPause(true);
+
+        await expect(tileNFT.connect(deployer).superMint(accounts[1].address, accounts[1].address)).to.be.revertedWith('MINT_PAUSED()');
+        await expect(tileNFT.connect(accounts[2]).mint()).to.be.revertedWith('MINT_PAUSED()');
+        await expect(tileNFT.connect(accounts[2]).grab(accounts[3].address)).to.be.revertedWith('MINT_PAUSED()');
+
+        await tileNFT.connect(deployer).setPause(false);
     });
 
     it('Should mint to 3rd party address using deployer account', async () => {
@@ -136,11 +144,11 @@ describe('InfiniteTiles privileged operations tests', () => {
                 .transferBalance(deployer.address, ethers.utils.parseEther('128')),
         ).to.be.revertedWith('INVALID_AMOUNT()');
 
-        await balanceTileNFT.connect(accounts[0]).mint({ value: ethers.utils.parseEther('0.0001') });
+        await balanceTileNFT.connect(accounts[0]).mint({ value: basePrice });
         expect(
             await balanceTileNFT
                 .connect(deployer)
-                .transferBalance(deployer.address, ethers.utils.parseEther('0.0001')),
+                .transferBalance(deployer.address, basePrice),
         ).to.changeEtherBalance(balanceTileNFT, ethers.utils.parseEther('-0.0001'));
     });
 
@@ -204,5 +212,10 @@ describe('InfiniteTiles privileged operations tests', () => {
 
     it('Should set tokenUriResolver address', async () => {
         await tileNFT.connect(deployer).setTokenUriResolver(ethers.constants.AddressZero);
-    });    
+    });
+
+    it('Should set Juicebox parameters', async () => {
+        await expect(tileNFT.connect(deployer).setJuiceboxParams(ethers.constants.AddressZero, 9999)).to.not.be.reverted;
+        await expect(tileNFT.connect(accounts[0]).setJuiceboxParams(ethers.constants.AddressZero, 9999)).to.be.reverted;
+    });
 });

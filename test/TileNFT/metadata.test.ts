@@ -60,7 +60,6 @@ describe('InfiniteTiles metadata tests', () => {
             .deploy(
                 'On-chain Tile',
                 'OT',
-                '',
                 linearSupplyPriceResolver.address,
                 tileContentProvider.address,
                 mockJbDirectory.address,

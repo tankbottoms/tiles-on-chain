@@ -67,4 +67,8 @@ contract IndexedTokenURIResolver is ITokenUriResolver {
   function tokenUri(uint256 _tokenId) external view override returns (string memory uri) {
     uri = string(abi.encodePacked(baseUri, _tokenId.toString()));
   }
+
+  function externalPreviewUrl(address _tile) public view override returns (string memory url) {
+    url = '';
+  }
 }

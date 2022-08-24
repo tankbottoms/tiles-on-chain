@@ -155,7 +155,6 @@ async function main() {
             .deploy(
                 activeConfig.name,
                 activeConfig.symbol,
-                '',
                 priceResolverAddress,
                 (newProvider ? tileContentProviderAddress : ethers.constants.AddressZero),
                 activeConfig.jbxDirectory,
@@ -236,10 +235,7 @@ async function main() {
 
     for await (const gift of activeConfig.gift) {
         try {
-            const tileNFTFactory = await ethers.getContractFactory('InfiniteTiles', deployer);
-            const token = await tileNFTFactory.attach(tokenAddress);
-
-            const tx = await token.connect(deployer).superMint(gift, gift);
+            const tx = await tileNFT.connect(deployer).superMint(gift, gift);
             await tx.wait();
             logger.info(`minted ${gift} to ${gift}`);
         } catch (err) {
