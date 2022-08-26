@@ -109,7 +109,6 @@ contract PatternPriceResolver is IPriceResolver {
      * @dev 36 is the max number of 4-bit sections we can have in the 144bit stretch representing the image portions.
      */
 
-    // uint8 sectionIncrement = uint8(36 / (matchWidth / 4));
     uint8 sectionIncrement = uint8(matchWidth / 4);
 
     uint16[36] memory sections;
