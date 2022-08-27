@@ -98,13 +98,24 @@ async function main() {
     let failed = 0;
     for await (const pair of mintPairs) {
         let gasSummary = await getGasPrice();
-        logger.info(`gas ${gasSummary['SafeGasPrice']}`)
-        while (Number((await getGasPrice())['SafeGasPrice']) !== 2) {
+        let gasFloor = Number(gasSummary['SafeGasPrice']);
+        let currentGas = gasFloor;
+        while (currentGas > 2) {
             await sleep(30_000);
 
-            if (Date.now() - checkpoint > 30 * 60 * 1000) {
-                logger.info(`ran for ${(Date.now() - startTime) / (60 * 1000)}min, minted ${minted}, failed ${failed}`);
+            if (Date.now() - checkpoint > 5 * 60 * 1000) {
+                logger.info(`ran for ${Math.floor((Date.now() - startTime) / (60 * 1000))} min, minted ${minted}, failed ${failed}; lowest gas: ${gasFloor}, current: ${currentGas}`);
                 checkpoint = Date.now();
+            }
+
+            try {
+                currentGas = Number((await getGasPrice())['SafeGasPrice']);
+            } catch {
+                currentGas = 999_999;
+            }
+
+            if (currentGas < gasFloor) {
+                gasFloor = currentGas;
             }
         }
 
@@ -119,10 +130,11 @@ async function main() {
             logger.error(err);
             failed++;
         }
-    }    
+    }
 }
 
 main().catch((error) => {
     logger.error(error);
+    logger.close();
     process.exitCode = 1;
 });
