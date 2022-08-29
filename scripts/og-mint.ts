@@ -91,7 +91,10 @@ async function main() {
     }
 
     logger.info(`found ${mintPairs.length} mintable tiles`);
+    mintPairs = mintPairs.slice(0, 2);
+    logger.info(`reduce to ${mintPairs.length} mintable tiles`);
 
+    const gasPriceLimit = 6;
     const startTime = Date.now();
     let checkpoint = Date.now();
     let minted = 0;
@@ -100,7 +103,7 @@ async function main() {
         let gasSummary = await getGasPrice();
         let gasFloor = Number(gasSummary['SafeGasPrice']);
         let currentGas = gasFloor;
-        while (currentGas > 2) {
+        while (currentGas > gasPriceLimit) {
             await sleep(30_000);
 
             if (Date.now() - checkpoint > 5 * 60 * 1000) {
@@ -121,7 +124,7 @@ async function main() {
 
         logger.info(`minting ${pair.tile} to OG ${pair.owner}`);
         try {
-            const tx = await newTileNFT.connect(deployer).superMint(pair.owner, pair.tile, { gasPrice: 2_000_000_000, gasLimit: 300_000 });
+            const tx = await newTileNFT.connect(deployer).superMint(pair.owner, pair.tile, { gasPrice: (gasPriceLimit * 1_000_000_000), gasLimit: 300_000 });
             const receipt = await tx.wait();
             minted++;
             logger.info(`minted ${pair.tile} to OG ${pair.owner}}`);
