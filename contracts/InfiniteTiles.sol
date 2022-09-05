@@ -168,7 +168,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   */
   function mint() external payable override nonReentrant returns (uint256 mintedTokenId) {
     if (paused) {
-        revert MINT_PAUSED();
+      revert MINT_PAUSED();
     }
 
     if (address(priceResolver) == address(0)) {
@@ -186,7 +186,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
 
   function grab(address _tile) external payable override nonReentrant returns (uint256 mintedTokenId) {
     if (paused) {
-        revert MINT_PAUSED();
+      revert MINT_PAUSED();
     }
 
     if (address(priceResolver) == address(0)) {
@@ -211,7 +211,7 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     bytes calldata proof
   ) external payable override nonReentrant returns (uint256 mintedTokenId) {
     if (paused) {
-        revert MINT_PAUSED();
+      revert MINT_PAUSED();
     }
 
     if (address(priceResolver) == address(0)) {
@@ -228,8 +228,8 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   }
 
   /**
-    * @notice Allows the sender to seize the tile with their address from the current owner at the current mint price. The payment will again be made to the associated Juicebox project. This is a means of discouraging people from minting tiles for addresses they do not control.
-    */
+   * @notice Allows the sender to seize the tile with their address from the current owner at the current mint price. The payment will again be made to the associated Juicebox project. This is a means of discouraging people from minting tiles for addresses they do not control.
+   */
   function seize() external payable override returns (uint256 tokenId) {
     tokenId = idForAddress[msg.sender];
 
@@ -308,11 +308,11 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   //*********************************************************************//
 
   /**
-    * @notice Allows direct mint by priviledged accounts bypassing price checks.
-    */
+   * @notice Allows direct mint by priviledged accounts bypassing price checks.
+   */
   function superMint(address _account, address _tile) external payable override nonReentrant onlyMinter(msg.sender) returns (uint256 mintedTokenId) {
     if (paused) {
-        revert MINT_PAUSED();
+      revert MINT_PAUSED();
     }
 
     mintedTokenId = _mint(_account, _tile);
@@ -333,15 +333,15 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
   }
 
   /**
-    * @notice Changes the associated price resolver.
-    */
+   * @notice Changes the associated price resolver.
+   */
   function setPriceResolver(IPriceResolver _priceResolver) external override onlyOwner {
     priceResolver = _priceResolver;
   }
 
   /**
-    * @notice Changes contract metadata uri.
-    */
+   * @notice Changes contract metadata uri.
+   */
   function setContractUri(string calldata contractUri) external override onlyOwner {
     _contractUri = contractUri;
   }
@@ -421,18 +421,15 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
       return;
     }
 
-    (bool success, ) = address(terminal).call{value: msg.value}(
-      abi.encodeWithSelector(
-        terminal.pay.selector,
-        jbxProjectId,
-        msg.value,
-        JBTokens.ETH,
-        msg.sender,
-        0,
-        false,
-        (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)),
-        0x0
-      )
+    terminal.pay{value: msg.value}(
+      jbxProjectId,
+      msg.value,
+      JBTokens.ETH,
+      msg.sender,
+      0,
+      false,
+      (_tile == address(0) ? '' : tokenUriResolver.externalPreviewUrl(_tile)),
+      '0x00'
     );
   }
 
