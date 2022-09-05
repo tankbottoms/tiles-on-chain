@@ -55,13 +55,15 @@ contract IndexedTokenURIResolver is ITokenUriResolver {
   using Strings for uint256;
 
   string public baseUri;
+  string public previewUri;
 
   /**
       @notice An ERC721-style token URI resolver that appends token id to the end of a base uri.
       @param _baseUri Root URI
      */
-  constructor(string memory _baseUri) {
+  constructor(string memory _baseUri, string memory _previewUri) {
     baseUri = _baseUri;
+    previewUri = _previewUri;
   }
 
   function tokenUri(uint256 _tokenId) external view override returns (string memory uri) {
@@ -69,6 +71,6 @@ contract IndexedTokenURIResolver is ITokenUriResolver {
   }
 
   function externalPreviewUrl(address _tile) public view override returns (string memory url) {
-    url = '';
+    url = string(abi.encodePacked(previewUri, Strings.toHexString(uint160(_tile), 20)));
   }
 }
