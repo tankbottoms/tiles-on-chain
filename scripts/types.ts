@@ -13,13 +13,15 @@ export type ConfigurationGroup = {
     priceCap: string,
     multiplier: number | string,
     tierSize: number | string,
+    matchWidth: number | string,
+    pairMultiplier: string
     jbxDirectory: string;
     stringHelpersLibrary: string,
     tileContentProvider: string,
     gatewayAnimationUrl: string,
     gatewayPreviewUrl: string,
     priceResolver: string,
-    priceResolverType: 'SupplyPriceResolver' | 'LegacyOwnershipPriceResolver' | 'MerkleRootPriceResolver',
+    priceResolverType: 'SupplyPriceResolver' | 'LegacyOwnershipPriceResolver' | 'MerkleRootPriceResolver' | 'PatternPriceResolver',
     token: string,
     royalty: number,
     manager: string,

@@ -138,9 +138,28 @@ async function main() {
         } else if (activeConfig.priceResolverType === 'MerkleRootPriceResolver') {
             // TODO
             logger.error('MerkleRootPriceResolver deployment not implemented');
+        } else if (activeConfig.priceResolverType === 'PatternPriceResolver') {
+            logger.debug(`deploying PatternPriceResolver with params: ${activeConfig.basePrice}, ${activeConfig.pairMultiplier}, ${activeConfig.matchWidth}`);
+
+            const patternPriceResolverFactory = await ethers.getContractFactory('PatternPriceResolver', deployer);
+            const patternPriceResolver = await patternPriceResolverFactory
+                .connect(deployer)
+                .deploy(
+                    ethers.utils.parseEther(activeConfig.basePrice),
+                    ethers.utils.parseEther(activeConfig.pairMultiplier),
+                    activeConfig.matchWidth);
+            await patternPriceResolver.deployed();
+
+            logger.info(`deployed new PatternPriceResolver contract to ${patternPriceResolver.address} in ${patternPriceResolver.deployTransaction.hash}`);
+            priceResolverAddress = patternPriceResolver.address;
+
+            config[hre.network.name].priceResolver = patternPriceResolver.address;
+            fs.writeFileSync('./scripts/config.json', JSON.stringify(config, undefined, 4));
+
+            newPricer = true;
         }
     } else {
-        logger.info(`LegacyOwnershipPriceResolver contract reported at ${priceResolverAddress}`);
+        logger.info(`${activeConfig.priceResolverType} contract reported at ${priceResolverAddress}`);
     }
 
     let newToken = false;
@@ -261,23 +280,36 @@ async function main() {
         }
     }
 
-    try {
-        sleep(30_000);
-        await hre.run('verify:verify', {
-            address: tokenAddress,
-            constructorArguments: [
-                activeConfig.name,
-                activeConfig.symbol,
-                '',
-                priceResolverAddress,
-                (newProvider ? tileContentProviderAddress : ethers.constants.AddressZero),
-                activeConfig.jbxDirectory,
-                activeConfig.projectId,
-                activeConfig.openSeaMetadata
-            ],
-        });
-    } catch (err) {
-        logger.error('Could not register contract code', err);
+    if (newToken) {
+        try {
+            sleep(10_000);
+            await hre.run('verify:verify', {
+                address: tokenAddress,
+                constructorArguments: [
+                    activeConfig.name,
+                    activeConfig.symbol,
+                    priceResolverAddress,
+                    (newProvider ? tileContentProviderAddress : ethers.constants.AddressZero),
+                    activeConfig.jbxDirectory,
+                    activeConfig.projectId,
+                    activeConfig.openSeaMetadata
+                ],
+            });
+        } catch (err) {
+            logger.error('Could not register contract code', err);
+        }
+    }
+
+    if (newProvider) {
+        try {
+            sleep(10_000);
+            await hre.run('verify:verify', {
+                address: tileContentProviderAddress,
+                constructorArguments: [ ]
+            });
+        } catch (err) {
+            logger.error('Could not register contract code', err);
+        }
     }
 }
 
@@ -285,3 +317,15 @@ main().catch((error) => {
     logger.error(error);
     process.exitCode = 1;
 });
+
+
+// npx hardhat run scripts/deploy.ts --network rinkeby
+// npx hardhat run scripts/deploy.ts --network mainnet
+
+
+// https://rinkeby.looksrare.org/collections/
+// https://testnets.opensea.io/assets/rinkeby/
+// https://testnet.rarible.com/collection/
+// https://gnosis-safe.io/app/rin:0x3dC17b930D586b70AD2Bb7f09465bE455BFA8fE6/home
+
+// grumpy price resolver 0x363245BFe4554Fd57040F2C4695f713c45Fb28c1
