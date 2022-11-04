@@ -295,12 +295,30 @@ contract InfiniteTiles is ERC721Enumerable, Ownable, ReentrancyGuard, IInfiniteT
     }
   }
 
+  /**
+   * @notice Returns the mint price based on the caller. When using off-chain it's best to call `getMintPrice(address,address) instead.
+   */
   function getMintPrice() external view returns (uint256 price) {
     if (address(priceResolver) == address(0)) {
       revert UNSUPPORTED_OPERATION();
     }
 
     price = priceResolver.getPriceWithParams(msg.sender, 0, abi.encodePacked(totalSupply(), msg.sender));
+  }
+
+  /**
+   * @notice Returns mint price for a given tile for the proposed minter.
+   */
+  function getMintPrice(address _minter, address _tile) external view returns (uint256 price) {
+    if (address(priceResolver) == address(0)) {
+      revert UNSUPPORTED_OPERATION();
+    }
+
+    if (idForAddress[_tile] != 0 && _minter != _tile) {
+      revert ALREADY_MINTED();
+    }
+
+    price = priceResolver.getPriceWithParams(_minter, 0, abi.encodePacked(totalSupply(), _tile));
   }
 
   //*********************************************************************//
