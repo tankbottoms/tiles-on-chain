@@ -82,7 +82,7 @@ function sleep(ms = 1_000) {
 
 async function legacyTiles() {
     const oldTokenAddress = '0x64931F06d3266049Bf0195346973762E6996D764';
-    const newTokenAddress = '0x4ddeF8Fc8EEE89848b4A802CEF9FC9E72B8674A4';
+    const newTokenAddress = '0xdae6Fb9177852bB6691c8A9057B1bD69FAc4AbD8';
 
     let deployer: SignerWithAddress;
     let newTileNFT: any;
@@ -101,29 +101,33 @@ async function legacyTiles() {
     logger.info(`connected as ${deployer.address}`);
     let mintPairs: any[] = [];
     for (let i = 1; i <= oldTileCount; i++) {
-        const tileAddress = await oldTileNFT.connect(deployer).tileAddressOf(i);
-        const oldOwner = await oldTileNFT.connect(deployer).ownerOf(i);
-        if (oldOwner === '0x000000000000000000000000000000000000dEaD') { continue; }
+        try {
+            const tileAddress = await oldTileNFT.connect(deployer).tileAddressOf(i);
+            const oldOwner = await oldTileNFT.connect(deployer).ownerOf(i);
+            if (oldOwner === '0x000000000000000000000000000000000000dEaD') { continue; }
 
-        const newTileIndex = (await newTileNFT.connect(deployer).idForAddress(tileAddress)).toNumber();
-
-        if (newTileIndex === 0) {
-            mintPairs.push({ owner: oldOwner, tile: tileAddress });
-        } else {
-            const newOwner = await newTileNFT.connect(deployer).ownerOf(newTileIndex);
-            if (newOwner == oldOwner) {
-                logger.info(`${tileAddress} already owned by ${oldOwner}`);
+            const newTileIndex = (await newTileNFT.connect(deployer).idForAddress(tileAddress)).toNumber();
+            if (newTileIndex === 0) {
+                mintPairs.push({ owner: oldOwner, tile: tileAddress });
+                logger.info(`noted ${i}: ${tileAddress} for ${oldOwner}`);
             } else {
-                logger.info(`${tileAddress} owned by ${newOwner}, not ${oldOwner}, CANNOT mint`);
+                const newOwner = await newTileNFT.connect(deployer).ownerOf(newTileIndex);
+                if (newOwner == oldOwner) {
+                    logger.info(`${i}: ${tileAddress} already owned by ${oldOwner}`);
+                } else {
+                    logger.info(`${tileAddress} owned by ${newOwner}, not ${oldOwner}, CANNOT mint`);
+                }
             }
+        } catch (err) {
+            logger.error(`failed to process legacy tile id ${i} due to ${err}`);
         }
     }
 
     logger.info(`found ${mintPairs.length} mintable tiles from ${oldTokenAddress}`);
-    mintPairs = mintPairs.slice(0, 2);
-    logger.info(`reduce to ${mintPairs.length} mintable tiles`);
+    // mintPairs = mintPairs.slice(0, 500);
+    // logger.info(`reduce to ${mintPairs.length} mintable tiles`);
 
-    const desiredGas = 6; // in gwei
+    const desiredGas = 5; // in gwei
     for await (const pair of mintPairs) {
         await waitForGasPrice(desiredGas);
 
@@ -131,7 +135,7 @@ async function legacyTiles() {
 
         logger.info(`minting ${pair.tile} to OG ${pair.owner} on ${newTokenAddress}`);
         try {
-            const gasOptions = { nonce, type: 2, maxFeePerGas: desiredGas * 1_000_000_000, maxPriorityFeePerGas: 2_000_000_000, gasLimit: 300_000 };
+            const gasOptions = { nonce, type: 2, maxFeePerGas: desiredGas * 1_000_000_000, maxPriorityFeePerGas: 1_000_000_000, gasLimit: 300_000 };
             const tx = await newTileNFT.connect(deployer).superMint(pair.owner, pair.tile, gasOptions);
 
             const receipt = await tx.wait();
@@ -144,9 +148,9 @@ async function legacyTiles() {
 }
 
 async function veeTwoTiles() {
-    const network = 'rinkeby';
-    const oldTokenAddress = '0x3A31414dFbA8B20D3bDa767092984db9d98a2da1';
-    const newTokenAddress = '0x08214180E91b03340e759f98f8AC8dc92C0bf2de';
+    const network = 'mainnet';
+    const oldTokenAddress = '0x4ddeF8Fc8EEE89848b4A802CEF9FC9E72B8674A4';
+    const newTokenAddress = '0xdae6Fb9177852bB6691c8A9057B1bD69FAc4AbD8';
 
     // const network = 'mainnet';
     // const oldTokenAddress = '0x4ddeF8Fc8EEE89848b4A802CEF9FC9E72B8674A4';
@@ -169,21 +173,25 @@ async function veeTwoTiles() {
     logger.info(`connected as ${deployer.address}`);
     let mintPairs: any[] = [];
     for (let i = 1; i <= oldTileCount; i++) {
-        const tileAddress = await oldTileNFT.connect(deployer).addressForId(i);
-        const oldOwner = await oldTileNFT.connect(deployer).ownerOf(i);
-        if (oldOwner === '0x000000000000000000000000000000000000dEaD') { continue; }
+        try {
+            const tileAddress = await oldTileNFT.connect(deployer).addressForId(i);
+            const oldOwner = await oldTileNFT.connect(deployer).ownerOf(i);
+            if (oldOwner === '0x000000000000000000000000000000000000dEaD') { continue; }
 
-        const newTileIndex = (await newTileNFT.connect(deployer).idForAddress(tileAddress)).toNumber();
+            const newTileIndex = (await newTileNFT.connect(deployer).idForAddress(tileAddress)).toNumber();
 
-        if (newTileIndex === 0) {
-            mintPairs.push({ owner: oldOwner, tile: tileAddress });
-        } else {
-            const newOwner = await newTileNFT.connect(deployer).ownerOf(newTileIndex);
-            if (newOwner == oldOwner) {
-                logger.info(`${tileAddress} already owned by ${oldOwner}`);
+            if (newTileIndex === 0) {
+                mintPairs.push({ owner: oldOwner, tile: tileAddress });
             } else {
-                logger.info(`${tileAddress} owned by ${newOwner}, not ${oldOwner}, CANNOT mint`);
+                const newOwner = await newTileNFT.connect(deployer).ownerOf(newTileIndex);
+                if (newOwner == oldOwner) {
+                    logger.info(`${tileAddress} already owned by ${oldOwner}`);
+                } else {
+                    logger.info(`${tileAddress} owned by ${newOwner}, not ${oldOwner}, CANNOT mint`);
+                }
             }
+        } catch (err) {
+            logger.error(`failed to process legacy tile id ${i} due to ${err}`);
         }
     }
 
@@ -191,7 +199,7 @@ async function veeTwoTiles() {
     mintPairs = mintPairs.slice(0, 2);
     logger.info(`reduce to ${mintPairs.length} mintable tiles`);
 
-    const desiredGas = 6; // in gwei
+    const desiredGas = 3; // in gwei
     for await (const pair of mintPairs) {
         await waitForGasPrice(desiredGas, network);
 
@@ -212,7 +220,7 @@ async function veeTwoTiles() {
 }
 
 async function main() {
-    // await legacyTiles();
+    await legacyTiles();
     // await veeTwoTiles();
 }
 
@@ -221,3 +229,5 @@ main().catch((error) => {
     logger.close();
     process.exitCode = 1;
 });
+
+// npx hardhat run scripts/og-mint.ts --network mainnet
